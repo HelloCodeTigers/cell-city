@@ -1,0 +1,1238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#6a3dcf">
+<meta name="description" content="Cell City by CodeTigers: interactive 3D biology lessons in English and Hindi.">
+<title>Cell City</title>
+<style>
+@font-face{font-family:"Mukta";src:url("fonts/mukta-devanagari-400-normal.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Mukta";src:url("fonts/mukta-devanagari-600-normal.woff2") format("woff2");font-weight:600;font-style:normal;font-display:swap}
+@font-face{font-family:"Mukta";src:url("fonts/mukta-devanagari-800-normal.woff2") format("woff2");font-weight:800;font-style:normal;font-display:swap}
+@font-face{font-family:"Bricolage Grotesque";src:url("fonts/bricolage-grotesque-latin-600-normal.woff2") format("woff2");font-weight:600;font-style:normal;font-display:swap}
+@font-face{font-family:"Bricolage Grotesque";src:url("fonts/bricolage-grotesque-latin-800-normal.woff2") format("woff2");font-weight:800;font-style:normal;font-display:swap}
+@font-face{font-family:"Atkinson Hyperlegible";src:url("fonts/atkinson-hyperlegible-latin-400-normal.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Atkinson Hyperlegible";src:url("fonts/atkinson-hyperlegible-latin-700-normal.woff2") format("woff2");font-weight:700;font-style:normal;font-display:swap}
+@font-face{font-family:"Atkinson Hyperlegible";src:url("fonts/atkinson-hyperlegible-latin-400-italic.woff2") format("woff2");font-weight:400;font-style:italic;font-display:swap}
+@font-face{font-family:"IBM Plex Mono";src:url("fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap}
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+</style>
+<style>
+/* Layout: a microscope stage (live 3D cell) on the left, a lesson notebook on the right, a chapter film-strip below */
+:root{
+  --bg:#f3edf3; --surface:#fffbfe; --surface-2:#f6eef5; --ink:#251b30; --muted:#6a5d76; --line:#e2d4e0;
+  --accent:#6a3dcf; --accent-ink:#ffffff; --accent-soft:#eee6fc; --stain:#c93a6a; --good:#1d8a62; --on-good:#ffffff; --bad:#c2410c;
+  --stage-a:#fffafd; --stage-b:#e9dbea; --graticule:rgba(106,61,207,.075); --tag-bg:#251b30; --tag-fg:#fffbfe; --star:#f2b630;
+  --shadow:0 1px 2px rgba(37,27,48,.06),0 10px 30px rgba(37,27,48,.10);
+  --f-display:"Bricolage Grotesque","Mukta","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible","Mukta",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono","Mukta",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0a0e16; --surface:#111726; --surface-2:#172036; --ink:#e8edf8; --muted:#97a2ba; --line:#232e47;
+    --accent:#a08cff; --accent-ink:#140d2c; --accent-soft:#1f1a3d; --stain:#ff7aa3; --good:#3ccf97; --on-good:#06251a; --bad:#ff8a5c;
+    --stage-a:#182035; --stage-b:#05080e; --graticule:rgba(160,140,255,.06); --tag-bg:#e8edf8; --tag-fg:#0a0e16; --star:#f5c142;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.45);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+    --bg:#0a0e16; --surface:#111726; --surface-2:#172036; --ink:#e8edf8; --muted:#97a2ba; --line:#232e47;
+    --accent:#a08cff; --accent-ink:#140d2c; --accent-soft:#1f1a3d; --stain:#ff7aa3; --good:#3ccf97; --on-good:#06251a; --bad:#ff8a5c;
+    --stage-a:#182035; --stage-b:#05080e; --graticule:rgba(160,140,255,.06); --tag-bg:#e8edf8; --tag-fg:#0a0e16; --star:#f5c142;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.45);
+    color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px;}
+button{font:inherit;color:inherit}
+button:focus-visible,.st:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+html[lang="hi"] body{line-height:1.6}
+
+.app{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:12px;max-width:1520px;margin:0 auto}
+
+/* top bar */
+.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:relative}
+.brand{display:flex;align-items:center;gap:12px;margin-right:auto;min-width:0}
+.brand svg{flex:0 0 auto}
+.brand h1{font-family:var(--f-display);font-weight:800;font-size:28px;letter-spacing:-.03em;margin:0;line-height:1;white-space:nowrap}
+html[lang="hi"] .brand h1{letter-spacing:0;line-height:1.15}
+.brand small{display:block;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-top:5px}
+.lang{display:inline-flex;background:var(--surface);border:1.5px solid var(--accent);border-radius:999px;padding:3px;gap:2px;flex:0 0 auto}
+.lang button{border:0;background:transparent;border-radius:999px;padding:4px 11px;font-weight:700;font-size:13px;cursor:pointer;color:var(--accent);line-height:1.3;min-width:40px}
+.lang button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.lessonBtn{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer;font-weight:700;font-size:14px}
+.lessonBtn:hover{background:var(--surface-2)}
+.menu{position:absolute;top:calc(100% + 8px);right:0;z-index:30;background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:8px;width:min(340px,100%);display:grid;gap:6px}
+.menu button{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:center;text-align:left;border:1px solid transparent;background:transparent;border-radius:12px;padding:10px;cursor:pointer}
+.menu button:hover{background:var(--surface-2)}
+.menu button[aria-current="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.menu .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--surface-2);color:var(--accent)}
+.menu .n{font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.menu .nm{font-family:var(--f-display);font-weight:800;font-size:16px;line-height:1.2}
+.menu .d{font-size:12.5px;color:var(--muted)}
+.ctrls{display:flex;gap:2px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px}
+.ib{width:36px;height:36px;border-radius:50%;border:0;background:transparent;display:grid;place-items:center;cursor:pointer;color:var(--ink)}
+.ib:hover{background:var(--surface-2)}
+.ib.primary{background:var(--accent);color:var(--accent-ink)}
+.ib.speed{width:auto;padding:0 12px;border-radius:999px;font-family:var(--f-mono);font-size:12px;font-variant-numeric:tabular-nums}
+.prog{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:8px 14px;min-width:220px}
+.prog .lbl{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;gap:12px}
+.prog .lbl b{color:var(--ink);font-weight:500;font-variant-numeric:tabular-nums}
+.prog .grow{flex:1;min-width:0}
+.bar{height:6px;background:var(--surface-2);border-radius:6px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--accent);width:0;border-radius:6px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+
+/* stage */
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 384px;gap:12px;min-height:0}
+.viewport{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);
+  background:radial-gradient(110% 90% at 46% 42%,var(--stage-a),var(--stage-b));min-height:0}
+.viewport::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(var(--graticule) 1px,transparent 1px),linear-gradient(90deg,var(--graticule) 1px,transparent 1px);background-size:44px 44px;
+  -webkit-mask-image:radial-gradient(closest-side,#000 55%,transparent);mask-image:radial-gradient(closest-side,#000 55%,transparent)}
+#c{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
+#leader{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+#leader line{stroke:var(--tag-bg);stroke-width:1.5}
+#leader .core{fill:var(--tag-bg)}
+#leader .ring{fill:none;stroke:var(--tag-bg);stroke-width:1.5;transform-box:fill-box;transform-origin:center;animation:ping 1.8s ease-out infinite}
+@keyframes ping{from{transform:scale(.6);opacity:.9}to{transform:scale(2.4);opacity:0}}
+.tag{position:absolute;left:0;top:0;background:var(--tag-bg);color:var(--tag-fg);padding:7px 12px 8px;border-radius:9px;pointer-events:none;white-space:nowrap;
+  font-family:var(--f-display);font-weight:800;font-size:15px;letter-spacing:-.005em;line-height:1.2;box-shadow:var(--shadow)}
+.tag small{display:block;font-family:var(--f-mono);font-weight:500;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.72;margin-bottom:2px}
+.tag em{display:block;font-style:normal;font-family:var(--f-body);font-weight:700;font-size:12px;opacity:.8;margin-top:2px}
+.tag.ok{background:var(--good);color:var(--on-good)}
+.chip{position:absolute;left:0;top:0;pointer-events:none;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700;box-shadow:var(--shadow);white-space:nowrap}
+.chip span{color:var(--muted);font-weight:400}
+.vlang{position:absolute;top:12px;right:12px;z-index:6;box-shadow:var(--shadow)}
+.scale{position:absolute;left:18px;bottom:16px;font-family:var(--f-mono);font-size:11px;color:var(--muted);pointer-events:none;font-variant-numeric:tabular-nums}
+.scale i{display:block;height:7px;border:2px solid var(--ink);border-top:0;margin-bottom:5px;width:80px;transition:width .2s}
+.hint{position:absolute;right:16px;bottom:14px;font-size:12px;color:var(--muted);pointer-events:none;text-align:right}
+.water{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:5;display:flex;align-items:center;gap:10px;background:var(--surface);border:1.5px solid var(--accent);border-radius:999px;padding:8px 16px;box-shadow:var(--shadow);width:min(480px,calc(100% - 32px));font-size:13px;font-weight:700}
+.water span{white-space:nowrap}
+.water input{flex:1;min-width:0;accent-color:var(--accent);height:28px}
+
+/* intro card over the stage */
+.intro{position:absolute;left:24px;top:24px;width:min(410px,calc(100% - 48px));background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:var(--shadow);z-index:4}
+.intro .eb{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--stain)}
+.intro h2{font-family:var(--f-display);font-weight:800;font-size:46px;letter-spacing:-.04em;line-height:1;margin:8px 0 12px}
+html[lang="hi"] .intro h2{letter-spacing:0;line-height:1.15}
+.intro p{margin:0 0 18px;font-size:16px;line-height:1.55;color:var(--ink)}
+.intro .row{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:11px 16px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.intro .meta{margin-top:16px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);line-height:1.7}
+.linkbtn{border:0;background:none;padding:0;margin-top:12px;color:var(--accent);font-weight:700;font-size:13.5px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+
+/* quiz bar + result */
+.quizbar{position:absolute;top:16px;left:50%;transform:translateX(-50%);width:min(540px,calc(100% - 150px));background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 16px;box-shadow:var(--shadow);text-align:center;z-index:4}
+.quizbar .qn{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.quizbar .qq{font-family:var(--f-display);font-weight:800;font-size:20px;letter-spacing:-.01em;line-height:1.25;margin-top:3px;text-wrap:balance}
+.quizbar .fb{font-size:14px;margin-top:6px;min-height:21px;color:var(--muted)}
+.quizbar .fb.bad{color:var(--bad)} .quizbar .fb.good{color:var(--good);font-weight:700}
+.quizbar.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(calc(-50% - 7px))}40%,80%{transform:translateX(calc(-50% + 7px))}}
+.result{position:absolute;inset:0;display:grid;place-items:center;padding:16px;background:color-mix(in srgb,var(--bg) 55%,transparent);backdrop-filter:blur(3px);z-index:5}
+.result .card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:28px;max-width:440px;width:100%;text-align:center;box-shadow:var(--shadow)}
+.stars{display:flex;justify-content:center;gap:6px;color:var(--line)}
+.stars .on{color:var(--star)}
+.result h3{font-family:var(--f-display);font-weight:800;font-size:32px;letter-spacing:-.02em;margin:10px 0 6px;line-height:1.15}
+.result p{margin:0 0 18px;color:var(--muted)}
+.result .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+
+/* notebook panel */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:22px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.ph{padding:20px 22px 0}
+.eyebrow{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--stain)}
+.ph h2{font-family:var(--f-display);font-size:32px;font-weight:800;letter-spacing:-.03em;margin:4px 0 8px;line-height:1.05;text-wrap:balance}
+html[lang="hi"] .ph h2{letter-spacing:0;line-height:1.2}
+.ph .en{display:block;font-family:var(--f-body);font-size:13px;font-weight:700;color:var(--muted);margin:-4px 0 8px;letter-spacing:0}
+.city{display:inline-flex;gap:8px;align-items:center;font-size:13px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:4px 11px 4px 8px}
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);padding:0 16px;margin-top:16px}
+.tab{background:none;border:0;padding:10px 8px;font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;margin-bottom:-1px}
+html[lang="hi"] .tab,html[lang="hi"] .eyebrow,html[lang="hi"] .intro .eb,html[lang="hi"] .prog .lbl,html[lang="hi"] .brand small,html[lang="hi"] .ch .n,html[lang="hi"] .callout b,html[lang="hi"] .quizbar .qn,html[lang="hi"] .intro .meta,html[lang="hi"] .tag small,html[lang="hi"] .menu .n{letter-spacing:.02em;font-size:12.5px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.pb{padding:16px 22px 22px;overflow:auto;min-height:0;flex:1}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.st{border:1px solid var(--line);border-radius:14px;padding:11px 13px;display:grid;grid-template-columns:24px minmax(0,1fr);gap:11px;cursor:pointer;background:transparent;text-align:left;width:100%}
+.st:hover{background:var(--surface-2)}
+.st .dot{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.st.done .dot{background:var(--good);border-color:var(--good);color:var(--on-good)}
+.st.cur{border-color:var(--accent);background:var(--accent-soft)}
+.st.cur .dot{border-color:var(--accent);color:var(--accent)}
+.st .t{font-family:var(--f-display);font-weight:800;font-size:16.5px;line-height:1.3;letter-spacing:-.01em;padding-top:1px}
+.st p{margin:6px 0 0;font-size:15.5px;line-height:1.6}
+.auto{height:3px;background:var(--line);border-radius:3px;margin-top:12px;overflow:hidden}
+.auto i{display:block;height:100%;width:0;background:var(--accent)}
+.prose p{font-size:16px;line-height:1.65;margin:0 0 12px;max-width:62ch}
+.callout{border:1.5px dashed var(--accent);border-radius:14px;padding:12px 14px;margin-top:6px;background:var(--accent-soft)}
+.callout b{font-family:var(--f-mono);font-size:10.5px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:3px}
+.callout p{margin:0;font-size:15px}
+.wow{font-family:var(--f-display);font-size:23px;font-weight:600;line-height:1.3;letter-spacing:-.015em;margin:4px 0 14px;text-wrap:pretty}
+html[lang="hi"] .wow{letter-spacing:0;font-size:21px;line-height:1.5}
+.small{font-size:13px;color:var(--muted)}
+.tblwrap{overflow-x:auto;margin-bottom:12px}
+.sheet{width:100%;border-collapse:collapse;font-size:14px}
+.sheet th{text-align:left;font-family:var(--f-mono);font-weight:500;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:6px 4px;border-bottom:1.5px solid var(--line)}
+.sheet td{padding:7px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+.sheet td:first-child{font-weight:700;padding-right:10px}
+.sheet td:last-child{color:var(--muted)}
+.qs .st{cursor:default}
+.qs .st.miss .dot{border-color:var(--bad);color:var(--bad)}
+
+/* chapter strip */
+.chapters{display:flex;align-items:center;gap:10px;min-width:0}
+.strip{display:flex;gap:8px;overflow-x:auto;flex:1;min-width:0;padding:2px;scrollbar-width:thin}
+.ch{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:7px 14px 7px 7px;border:1px solid var(--line);background:var(--surface);border-radius:14px;cursor:pointer;text-align:left;min-width:158px}
+.ch:hover{background:var(--surface-2)}
+.ch .ic{width:38px;height:38px;border-radius:10px;background:var(--surface-2);display:grid;place-items:center;color:var(--accent);flex:0 0 auto}
+.ch .n{font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.ch .nm{font-family:var(--f-display);font-weight:800;font-size:14px;line-height:1.2;letter-spacing:-.01em}
+.ch.cur{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.ch.done .ic{background:var(--good);color:var(--on-good)}
+.nav{width:46px;height:46px;flex:0 0 auto;border-radius:14px;border:1px solid var(--line);background:var(--surface);cursor:pointer;display:grid;place-items:center}
+.nav.next{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.nav:disabled{opacity:.35;cursor:default}
+
+@media (max-width:900px){
+  html,body{height:auto}
+  .app{display:flex;flex-direction:column;height:auto}
+  .stage{display:contents}
+  .top{order:1}
+  .viewport{order:2;height:64vh;min-height:400px}
+  .chapters{order:3}
+  .panel{order:4;overflow:visible}
+  .prog{min-width:0;flex:1 1 200px}
+  .brand h1{font-size:24px}
+  .brand{width:100%}
+  .top>.lang{display:none}
+  .intro{left:12px;right:12px;top:auto;bottom:12px;width:auto;padding:18px}
+  .intro h2{font-size:34px}
+  .intro p{font-size:15px;margin-bottom:14px}
+  .hint{display:none}
+  .ph h2{font-size:28px}
+  .quizbar{top:60px;width:calc(100% - 24px)}
+  .water{bottom:12px;padding:8px 12px;font-size:12px}
+}
+@media (min-width:901px){ .vlang{display:none} }
+@media (prefers-reduced-motion: reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true">
+        <circle cx="22" cy="22" r="19" fill="none" stroke="var(--stain)" stroke-width="3"/>
+        <circle cx="22" cy="22" r="15.5" fill="var(--accent-soft)"/>
+        <circle cx="19" cy="20" r="7" fill="var(--accent)"/>
+        <circle cx="17.5" cy="18.5" r="2.4" fill="var(--accent-ink)" opacity=".8"/>
+        <rect x="26" y="27" width="9" height="4" rx="2" fill="#ff7a59" transform="rotate(-30 30 29)"/>
+        <circle cx="30" cy="15" r="1.6" fill="var(--accent)"/><circle cx="12" cy="29" r="1.4" fill="var(--accent)"/>
+      </svg>
+      <div style="min-width:0"><h1 id="brandName">Cell City</h1><small id="brandSub">Bio Lab · Lesson 1</small></div>
+      <div class="lang" role="group" aria-label="Language / भाषा"><button data-lang="en" aria-pressed="true" lang="en">EN</button><button data-lang="hi" aria-pressed="false" lang="hi">हिं</button></div>
+    </div>
+    <button class="lessonBtn" id="bLesson" aria-haspopup="true" aria-expanded="false"><span id="lessonBtnTxt">Lesson 1</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+    <div class="menu" id="menu" hidden></div>
+    <div class="ctrls" role="group">
+      <button class="ib" id="bView"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg></button>
+      <button class="ib" id="bRestart"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+      <button class="ib primary" id="bPlay"><svg id="iPlay" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v16l13-8z"/></svg></button>
+      <button class="ib speed" id="bSpeed">1×</button>
+    </div>
+    <div class="prog">
+      <div class="grow">
+        <div class="lbl"><span id="progName"></span><b id="progNum">0/16</b></div>
+        <div class="bar"><i id="progBar"></i></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="stage">
+    <div class="viewport" id="viewport">
+      <canvas id="c" tabindex="0"></canvas>
+      <svg id="leader" aria-hidden="true"><line id="lLine"/><circle class="ring" id="lRing" r="5"/><circle class="core" id="lCore" r="4"/></svg>
+      <div class="tag" id="tag" hidden></div>
+      <div class="chip" id="chip" hidden></div>
+      <div class="lang vlang" role="group" aria-label="Language / भाषा"><button data-lang="en" aria-pressed="true" lang="en">EN</button><button data-lang="hi" aria-pressed="false" lang="hi">हिं</button></div>
+      <div class="scale" id="scale"><i id="scaleBar"></i><span id="scaleTxt">5 µm</span></div>
+      <div class="hint" id="hint"></div>
+      <div class="water" id="water" hidden><span id="wSalt">Salty water</span><input type="range" id="waterR" min="0" max="100" value="100" aria-label="Water"><span id="wFresh">Fresh water</span></div>
+
+      <div class="intro" id="intro">
+        <div class="eb" id="iEb"></div>
+        <h2 id="iH"></h2>
+        <p id="iP"></p>
+        <div class="row">
+          <button class="btn primary" id="bStart"><span id="tStart">Start building</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+          <button class="btn" id="bSkip">Skip to the quiz</button>
+        </div>
+        <div class="meta" id="iMeta"></div>
+        <button class="linkbtn" id="bOther"></button>
+      </div>
+
+      <div class="quizbar" id="quizbar" hidden>
+        <div class="qn" id="qn"></div>
+        <div class="qq" id="qq"></div>
+        <div class="fb" id="fb"></div>
+      </div>
+
+      <div class="result" id="result" hidden>
+        <div class="card">
+          <div class="stars" id="stars"></div>
+          <h3 id="rTitle"></h3>
+          <p id="rText"></p>
+          <div class="row">
+            <button class="btn primary" id="bNextL" hidden></button>
+            <button class="btn" id="bRetry"></button>
+            <button class="btn" id="bReview"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="panel" aria-live="polite">
+      <div class="ph">
+        <div class="eyebrow" id="pEye"></div>
+        <h2 id="pTitle"></h2>
+        <span class="city" id="pCity"></span>
+      </div>
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" data-tab="steps" aria-selected="true"></button>
+        <button class="tab" role="tab" data-tab="why" aria-selected="false"></button>
+        <button class="tab" role="tab" data-tab="wow" aria-selected="false"></button>
+      </div>
+      <div class="pb" id="pBody"></div>
+    </aside>
+  </main>
+
+  <nav class="chapters" aria-label="Chapters">
+    <button class="nav" id="bPrev" aria-label="Previous step"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div class="strip" id="strip"></div>
+    <button class="nav next" id="bNext" aria-label="Next step"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+  </nav>
+</div>
+
+<script src="lib/three.min.js"></script>
+<script src="lib/OrbitControls.js"></script>
+<script>
+(function(){
+'use strict';
+const $=s=>document.querySelector(s);
+const V=THREE.Vector3, TAU=Math.PI*2, D2R=Math.PI/180;
+const RM=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const easeOutBack=t=>{const c1=1.45,c3=c1+1;return 1+c3*Math.pow(t-1,3)+c1*Math.pow(t-1,2)};
+const easeInCubic=t=>t*t*t;
+const easeIO=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+let seed=11; const rnd=()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646}; const rr=(a,b)=>a+(b-a)*rnd();
+const polar=(aDeg,r,y)=>new V(r*Math.cos(aDeg*D2R),y,r*Math.sin(aDeg*D2R));
+const sph=(aDeg,eDeg,r,c)=>{const a=aDeg*D2R,e=eDeg*D2R;c=c||new V();return new V(c.x+r*Math.cos(e)*Math.cos(a),c.y+r*Math.sin(e),c.z+r*Math.cos(e)*Math.sin(a))};
+const O=new V();
+
+/* ---------------- language ---------------- */
+const st={lang:'en',tab:'steps',playing:false,speed:1,step:0,intro:true,stepT0:0,quiz:null,temp:null};
+try{const l=localStorage.getItem('cellcity-lang');if(l==='hi'||l==='en')st.lang=l}catch(e){}
+const b=(en,hi)=>({en,hi});
+const T=x=>(x&&typeof x==='object'&&!Array.isArray(x)&&'en' in x)?(x[st.lang]!=null?x[st.lang]:x.en):(x==null?'':x);
+const EN=x=>(x&&typeof x==='object'&&'en' in x)?x.en:x;
+const HI=()=>st.lang==='hi';
+const UI={
+ app:b('Cell City','कोशिका नगर'), lab:b('Bio Lab','बायो लैब'), lesson:b('Lesson','पाठ'),
+ start:b('Start building','बनाना शुरू करें'), skip:b('Skip to the quiz','सीधे क्विज़ पर जाएँ'),
+ tabs:{steps:b('Steps','चरण'),why:b('Why it works','ऐसा क्यों'),wow:b('Did you know','क्या आप जानते हैं')},
+ exam:b('Exam tip','परीक्षा टिप'), finale:b('Finale','अंतिम पड़ाव'), chapter:b('Chapter','अध्याय'),
+ inCity:b('In Cell City:','कोशिका नगर में:'), map:b('Lesson map','पाठ का नक्शा'),
+ hint:b('Drag to spin · Scroll to zoom · Tap any part','खींचकर घुमाएँ · स्क्रॉल से ज़ूम करें · किसी भी हिस्से पर टैप करें'),
+ nextCh:b('Next chapter:','अगला अध्याय:'), nextHow:b('Press → or the arrow below.','→ दबाएँ या नीचे का तीर।'),
+ builtAll:b('You built the whole cell. Next: the quiz.','आपने पूरी कोशिका बना ली। अब: क्विज़।'),
+ qSpin:b('Spin the cell if you need a better look.','ठीक से देखने के लिए कोशिका को घुमाएँ।'),
+ qFirst:b('Correct, first try!','सही! पहली कोशिश में ही!'), qRight:b('Correct!','सही!'), qCorrect:b('Correct','सही'),
+ qHint:b('Hint: look for the glowing part.','संकेत: चमकते हिस्से को देखें।'),
+ qIntro:b('Read the clue, then tap that part on the 3D cell. You can spin and zoom first.','संकेत पढ़ें, फिर 3D कोशिका में उस हिस्से पर टैप करें। पहले आप घुमा और ज़ूम कर सकते हैं।'),
+ score:b('Score','स्कोर'), firstTry:b('right on the first try','पहली कोशिश में सही'),
+ cheat:b('Cell City cheat sheet','कोशिका नगर चीट शीट'),
+ r3:b('Cell City expert!','कोशिका नगर विशेषज्ञ!'), r2:b('Great work!','बहुत बढ़िया!'), r1:b('Good start!','अच्छी शुरुआत!'),
+ rReview:b('Review the chapters you missed, then try again.','जो अध्याय छूट गए उन्हें दोहराएँ, फिर से कोशिश करें।'),
+ retry:b('Try again','फिर से खेलें'), review:b('Review the lesson','पाठ दोहराएँ'),
+ reset:b('Reset the camera','कैमरा रीसेट करें'), restart:b('Start over','फिर से शुरू करें'), play:b('Play','चलाएँ'), pause:b('Pause','रोकें'), speed:b('Change speed','गति बदलें'),
+ salty:b('Salty water','नमकीन पानी'), fresh:b('Fresh water','साफ़ पानी'),
+ prev:b('Previous step','पिछला चरण'), next:b('Next step','अगला चरण'),
+ canvas:b('Interactive 3D model of a cell. Drag to rotate, scroll to zoom, tap a part to learn about it.','कोशिका का इंटरैक्टिव 3D मॉडल। घुमाने के लिए खींचें, ज़ूम के लिए स्क्रॉल करें, किसी हिस्से पर टैप करके उसके बारे में जानें।'),
+ part:b('Part','हिस्सा'), plant:b('Plant cell','पादप कोशिका'), animal:b('Animal cell','जंतु कोशिका')
+};
+const fmt={
+ chOf:(a,n)=>HI()?`अध्याय ${a} / ${n}`:`Chapter ${a} of ${n}`,
+ qOf:(i,n)=>HI()?`प्रश्न ${i} / ${n}`:`Question ${i} of ${n}`,
+ wrong:(n,j)=>HI()?`यह ${n} है, यानी ${j}। फिर से कोशिश करें।`:`That's the ${n}, ${j}. Try again.`,
+ rScore:(s,n)=>HI()?`आपने पहली कोशिश में ${n} में से ${s} सही किए। `:`You got ${s} of ${n} right on the first try. `,
+ stepOf:(a,n)=>HI()?`चरण ${a} / ${n}`:`Step ${a} of ${n}`,
+ goTo:(n,t)=>HI()?`या सीधे पाठ ${n} पर जाएँ: ${t} →`:`Or jump to Lesson ${n}: ${t} →`,
+ nextL:(n)=>HI()?`पाठ ${n} शुरू करें`:`Start Lesson ${n}`
+};
+
+/* ---------------- renderer ---------------- */
+const viewport=$('#viewport'), canvas=$('#c');
+let renderer;
+try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true})}
+catch(e){viewport.insertAdjacentHTML('beforeend','<div class="intro"><h2>Oops</h2><p>This lesson needs WebGL, which your browser has switched off. Try Chrome, Edge or Safari.</p></div>');return}
+renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(36,1,0.1,500);
+scene.add(camera);
+const controls=new THREE.OrbitControls(camera,canvas);
+controls.enableDamping=true;controls.dampingFactor=.08;controls.minDistance=3;controls.maxDistance=110;controls.rotateSpeed=.7;controls.zoomSpeed=.8;controls.autoRotateSpeed=.55;
+scene.add(new THREE.HemisphereLight(0xffffff,0x8d7fae,.72));
+const key=new THREE.DirectionalLight(0xffffff,.72);key.position.set(14,22,16);scene.add(key);
+const fill=new THREE.DirectionalLight(0xc8dcff,.32);fill.position.set(-18,4,-8);scene.add(fill);
+camera.add(new THREE.PointLight(0xffffff,.32,0));
+
+/* ---------------- textures & helpers ---------------- */
+function canvasTex(w,h,draw){const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=4;return t}
+const lipidTex=canvasTex(256,256,(g,w,h)=>{g.fillStyle='#ef93ae';g.fillRect(0,0,w,h);const s=12.8;
+  for(let y=0;y<h+s;y+=s*.86){const row=Math.round(y/(s*.86));for(let x=(row%2)*s/2;x<w+s;x+=s){
+    g.fillStyle='rgba(150,40,85,.28)';g.beginPath();g.arc(x+1,y+1.6,5,0,TAU);g.fill();
+    g.fillStyle='#fbc4d3';g.beginPath();g.arc(x,y,5,0,TAU);g.fill();
+    g.fillStyle='rgba(255,255,255,.55)';g.beginPath();g.arc(x-1.5,y-1.6,1.6,0,TAU);g.fill()}}});
+lipidTex.repeat.set(14,7);
+const mitoTex=canvasTex(64,256,(g,w,h)=>{g.fillStyle='#ff8463';g.fillRect(0,0,w,h);g.strokeStyle='#ffc0a9';g.lineWidth=5;
+  for(let y=10;y<h;y+=22){g.beginPath();for(let x=0;x<=w;x+=4)g.lineTo(x,y+3*Math.sin(x*.2+y));g.stroke()}});
+const dotTex=canvasTex(64,64,(g)=>{const r=g.createRadialGradient(32,32,0,32,32,30);r.addColorStop(0,'rgba(255,255,255,1)');r.addColorStop(.55,'rgba(255,255,255,.9)');r.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=r;g.fillRect(0,0,64,64)});
+const shadowTex=canvasTex(128,128,(g)=>{const r=g.createRadialGradient(64,64,0,64,64,62);r.addColorStop(0,'rgba(40,20,60,.42)');r.addColorStop(1,'rgba(40,20,60,0)');g.fillStyle=r;g.fillRect(0,0,128,128)});
+const celTex=canvasTex(256,256,(g,w,h)=>{g.fillStyle='#bcd98f';g.fillRect(0,0,w,h);g.lineWidth=2;
+  for(let i=-h;i<w+h;i+=9){g.strokeStyle='rgba(120,160,70,.45)';g.beginPath();g.moveTo(i,0);g.lineTo(i+h*.6,h);g.stroke();
+    g.strokeStyle='rgba(235,245,210,.55)';g.beginPath();g.moveTo(i+4,h);g.lineTo(i+4+h*.6,0);g.stroke()}});
+celTex.repeat.set(3,2);
+const chlTex=canvasTex(128,64,(g,w,h)=>{g.fillStyle='#5cb84e';g.fillRect(0,0,w,h);
+  for(let y=8;y<h;y+=14)for(let x=8+(y%28?7:0);x<w;x+=14){g.fillStyle='#2f7d32';g.beginPath();g.ellipse(x,y,4.5,3,0,0,TAU);g.fill();g.fillStyle='rgba(200,240,170,.5)';g.beginPath();g.ellipse(x-1,y-1,1.6,1,0,0,TAU);g.fill()}});
+
+function mat(color,o){o=o||{};const glow=o.glow;delete o.glow;const m=new THREE.MeshStandardMaterial(Object.assign({color,roughness:.6,metalness:0},o));m.userData.glow=new THREE.Color(glow!=null?glow:color);return m}
+function softMat(color,op,o){const m=new THREE.MeshStandardMaterial(Object.assign({color,transparent:true,opacity:op,depthWrite:false,side:THREE.DoubleSide,roughness:.35},o||{}));m.userData.glow=new THREE.Color(color);return m}
+function deform(geo,f){const p=geo.attributes.position,v=new V();for(let i=0;i<p.count;i++){v.fromBufferAttribute(p,i);f(v);p.setXYZ(i,v.x,v.y,v.z)}geo.computeVertexNormals();return geo}
+function surface(fn,nu,nv){const pos=[],idx=[],v=new V();for(let j=0;j<=nv;j++)for(let i=0;i<=nu;i++){fn(i/nu,j/nv,v);pos.push(v.x,v.y,v.z)}
+  for(let j=0;j<nv;j++)for(let i=0;i<nu;i++){const a=j*(nu+1)+i,bb=a+1,c=a+nu+1,d=c+1;idx.push(a,c,bb,bb,c,d)}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setIndex(idx);g.computeVertexNormals();return g}
+function arc(r,face,c){c=c||new V();const pts=[];for(let i=0;i<=56;i++){const t=-Math.PI/2+Math.PI*i/56,h=r*Math.sin(t),w=r*Math.cos(t);pts.push(face===0?new V(c.x+w,c.y+h,c.z):new V(c.x,c.y+h,c.z+w))}return new THREE.CatmullRomCurve3(pts)}
+function halfDisc(r,face,m){const me=new THREE.Mesh(new THREE.CircleGeometry(r,72,-Math.PI/2,Math.PI),m);if(face===1)me.rotation.y=-Math.PI/2;return me}
+function walk(start,n,step,inside){let p=start.clone();const pts=[p.clone()];let dir=new V(rr(-1,1),rr(-1,1),rr(-1,1)).normalize();
+  for(let i=0;i<n;i++){dir.add(new V(rr(-.8,.8),rr(-.8,.8),rr(-.8,.8))).normalize();let q=p.clone().addScaledVector(dir,step),t=0;
+    while(!inside(q)&&t<16){dir.set(rr(-1,1),rr(-1,1),rr(-1,1)).normalize();q=p.clone().addScaledVector(dir,step);t++}
+    if(!inside(q))break;p=q;pts.push(p.clone())}
+  return new THREE.CatmullRomCurve3(pts)}
+// superellipsoids (boxy rounded shapes for the plant cell)
+const spow=(u,p)=>Math.sign(u)*Math.pow(Math.abs(u),p);
+function superHalf(a,bb,c,p){return deform(new THREE.SphereGeometry(1,96,64,Math.PI,Math.PI),v=>{v.set(a*spow(v.x,p),bb*spow(v.y,p),c*spow(v.z,p))})}
+function superOutline(a,bb,p,z,n){const pts=[];n=n||160;for(let i=0;i<n;i++){const t=i/n*TAU;pts.push(new V(a*spow(Math.cos(t),p),bb*spow(Math.sin(t),p),z||0))}return pts}
+function superRing(a,bb,p,z){return new THREE.CatmullRomCurve3(superOutline(a,bb,p,z),true)}
+function superDisc(a,bb,p){const s=new THREE.Shape(superOutline(a,bb,p,0).map(v=>new THREE.Vector2(v.x,v.y)));return new THREE.ShapeGeometry(s,4)}
+function superPoint(a,bb,c,p,dir){const d=dir.clone().normalize();const pt=new V(a*spow(d.x,p),bb*spow(d.y,p),c*spow(d.z,p));
+  const n=new V(Math.sign(d.x)*Math.pow(Math.abs(d.x),2-p)/a,Math.sign(d.y)*Math.pow(Math.abs(d.y),2-p)/bb,Math.sign(d.z)*Math.pow(Math.abs(d.z),2-p)/c).normalize();return {p:pt,n}}
+function insideSuper(v,a,bb,c,p){const e=2/p;return Math.pow(Math.abs(v.x/a),e)+Math.pow(Math.abs(v.y/bb),e)+Math.pow(Math.abs(v.z/c),e)<1}
+
+const mitoGeo=deform(new THREE.SphereGeometry(1,40,28),v=>{v.x*=.62;v.z*=.62;v.y*=1.55;v.x+=.1*v.y*v.y});
+function makeGolgi(){const gg=new THREE.Group();const cols=[0xeea23a,0xf2ae45,0xf4b951,0xf6c35e,0xf8cd6c];
+  for(let i=0;i<5;i++){const w=1.9-i*.13;const geo=deform(new THREE.SphereGeometry(1,44,20),v=>{v.x*=w;v.z*=.98;v.y=v.y*.13+.22*v.x*v.x/w});
+    const me=new THREE.Mesh(geo,mat(cols[i],{roughness:.45}));me.position.y=(i-2)*.36;gg.add(me)}
+  const vm=mat(0xf9d27a,{roughness:.4});
+  for(let i=0;i<14;i++){const s=new THREE.Mesh(new THREE.SphereGeometry(rr(.12,.2),14,10),vm);
+    if(i<9){const side=i%2?1:-1;s.position.set(side*rr(2.0,2.4),rr(-.6,1.0),rr(-.7,.7))}else s.position.set(rr(-1.2,1.2),rr(1.3,1.8),rr(-.6,.6));gg.add(s)}
+  return gg}
+
+/* ---------------- lessons & entries ---------------- */
+function makeLesson(o){const L=Object.assign({root:new THREE.Group(),ENT:{},pickables:[],done:new Set()},o);scene.add(L.root);L.root.visible=false;return L}
+function entry(L,k,root,parts,o,parent){o=o||{};
+  const e={key:k,root,parts:parts||[root],target:0,t0:-100,stag:o.stag||0,dur:o.dur||1.0,mats:[],lastI:-1};
+  L.ENT[k]=e;(parent||L.root).add(root);root.visible=false;
+  e.parts.forEach(p=>{p.userData.base=p.scale.clone();p.userData.fx=1;p.scale.setScalar(1e-4)});
+  root.traverse(ob=>{if(ob.isMesh){ob.userData.ent=k;if(!ob.userData.key)ob.userData.key=k;if(!ob.userData.nopick)L.pickables.push(ob);
+    [].concat(ob.material).forEach(m=>{if(m.emissive&&m.userData.glow&&e.mats.indexOf(m)<0)e.mats.push(m)})}});
+  return e}
+const view=(t,az,el,d)=>({t,az,el,d});
+
+const ICONS={
+ mem:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9.5"/><circle cx="12" cy="12" r="6.5" stroke-dasharray="2 2.2"/></svg>',
+ cyt:'<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="9" r="1.3"/><circle cx="15" cy="10" r="1.3"/><circle cx="11" cy="15" r="1.3"/><circle cx="16" cy="15" r="1.1"/><circle cx="7.5" cy="13" r="1"/></svg>',
+ nuc:'<svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="5" fill="currentColor"/><circle cx="13.5" cy="11" r="1.6" fill="var(--surface)"/></svg>',
+ er:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8c3-3 5 3 8 0s5 3 8 0M3 13c3-3 5 3 8 0s5 3 8 0M3 18c3-3 5 3 8 0s5 3 8 0"/></svg>',
+ gol:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7q8 5 16 0M5 12q7 4 14 0M6 17q6 3 12 0"/><circle cx="20" cy="18" r="1.3" fill="currentColor" stroke="none"/></svg>',
+ mit:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="7" width="19" height="10" rx="5"/><path d="M6 10v4M9 9.5v4M12 10v4M15 9.5v4M18 10v4" stroke-linecap="round"/></svg>',
+ lys:'<svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="10" cy="10" r="1.5" fill="currentColor"/><circle cx="14.5" cy="12" r="1.5" fill="currentColor"/><circle cx="10.5" cy="14.8" r="1.3" fill="currentColor"/></svg>',
+ wall:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M3 12h18M9 5v7M15 12v7"/></svg>',
+ vac:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11z"/></svg>',
+ chl:'<svg width="22" height="22" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="9.5" ry="5.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="11" r="1.5" fill="currentColor"/><circle cx="16" cy="12.5" r="1.5" fill="currentColor"/></svg>',
+ cmp:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="6" width="9" height="12" rx="1.5"/><circle cx="17.5" cy="12" r="4.5"/></svg>',
+ quiz:'<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.8 6 6.5.7-4.9 4.4 1.4 6.4L12 16.8 6.2 20l1.4-6.4L2.7 9.2l6.5-.7z"/></svg>',
+ cell:'<svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="11" cy="11" r="4" fill="currentColor"/></svg>',
+ leaf:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><ellipse cx="12" cy="12" rx="6" ry="3.5"/><circle cx="5.5" cy="8" r="1" fill="currentColor"/></svg>'
+};
+
+/* =======================================================================
+   LESSON 1 · ANIMAL CELL
+   ======================================================================= */
+const L1=makeLesson({id:'lesson-1',num:1,unit:1,icon:'cell',
+  title:b('Inside a cell','कोशिका के अंदर'),kind:b('Animal cell','जंतु कोशिका'),
+  desc:b('Build an animal cell, part by part','जंतु कोशिका को हिस्सा-दर-हिस्सा बनाएँ'),
+  overview:view(O,40,24,36),
+  intro:{eb:b('Lesson 1 · Inside a cell','पाठ 1 · कोशिका के अंदर'),h:b('Cell City','कोशिका नगर'),
+    p:b('You are built from about 30 trillion cells. Each one runs like a tiny city, with a wall, a city hall, factories, a post office and power plants. Let\'s build one, part by part.',
+        'आप लगभग 30 लाख करोड़ कोशिकाओं से बने हैं। हर कोशिका एक छोटे शहर की तरह चलती है, जिसमें दीवार, नगर भवन, कारखाने, डाकघर और बिजलीघर हैं। चलिए, एक-एक हिस्सा जोड़कर एक कोशिका बनाते हैं।'),
+    meta:b('7 chapters · 16 steps · quiz<br>Matches NCERT Class 9 · The Fundamental Unit of Life','7 अध्याय · 16 चरण · क्विज़<br>NCERT कक्षा 9 · जीवन की मौलिक इकाई')},
+  mapTitle:b('Build a cell in 7 chapters','7 अध्यायों में एक कोशिका बनाएँ'),mapSub:b('Every part has a job in Cell City','कोशिका नगर में हर हिस्से का एक काम है'),
+  SOFT:{cytoplasm:1},BACKDROP:{membraneInner:1},
+  ALIAS:{membraneInner:'membrane',channels:'membrane',chromatin:'nucleus',nucleolus:'nucleus',mitoHero:'mito'},
+  quizKeys:['membrane','channels','cytoplasm','cyto','nucleus','chromatin','nucleolus','ribosomes','roughER','smoothER','golgi','mito','mitoHero','lyso']
+});
+(function buildL1(L){
+  const R=10,NR=2.8;
+  const kept=(x,z)=>!(x>0&&z>0);
+  L.NAMES={membrane:b('Cell membrane','कोशिका झिल्ली'),membraneInner:b('Cell membrane','कोशिका झिल्ली'),channels:b('Protein channel','प्रोटीन चैनल'),cytoplasm:b('Cytoplasm','कोशिका द्रव्य'),
+    cyto:b('Cytoskeleton','कोशिका कंकाल'),nucleus:b('Nucleus','केन्द्रक'),chromatin:b('Chromatin (DNA)','क्रोमैटिन (DNA)'),nucleolus:b('Nucleolus','केन्द्रिका'),
+    ribosomes:b('Ribosome','राइबोसोम'),roughER:b('Rough ER','खुरदरी ER'),smoothER:b('Smooth ER','चिकनी ER'),golgi:b('Golgi apparatus','गॉल्जी उपकरण'),
+    mito:b('Mitochondrion','माइटोकॉन्ड्रिया'),mitoHero:b('Mitochondrion','माइटोकॉन्ड्रिया'),lyso:b('Lysosome','लाइसोसोम'),debris:b('Worn-out part','पुराना हिस्सा')};
+  L.JOBS={membrane:b('the city wall','शहर की दीवार'),membraneInner:b('the city wall','शहर की दीवार'),channels:b('a gate in the wall','दीवार का एक द्वार'),cytoplasm:b('the city ground','शहर की ज़मीन'),
+    cyto:b('the railway tracks','रेल की पटरियाँ'),nucleus:b('city hall','नगर भवन'),chromatin:b('the instruction book','निर्देश पुस्तिका'),nucleolus:b('the ribosome workshop','राइबोसोम की कार्यशाला'),
+    ribosomes:b('a tiny builder','नन्हा कारीगर'),roughER:b('the factory floor','कारखाने का फ़र्श'),smoothER:b('the fat factory','वसा का कारखाना'),golgi:b('the post office','डाकघर'),
+    mito:b('a power plant','बिजलीघर'),mitoHero:b('a power plant','बिजलीघर'),lyso:b('the recycling crew','रीसाइक्लिंग दल'),debris:b('rubbish to recycle','रीसाइकल होने वाला कचरा')};
+
+  /* membrane */
+  const memG=new THREE.Group();
+  const outer=new THREE.Mesh(new THREE.SphereGeometry(R,112,72,Math.PI,1.5*Math.PI),mat(0xffffff,{map:lipidTex,roughness:.5,glow:0xff7aa0}));
+  const inner=new THREE.Mesh(new THREE.SphereGeometry(R-.3,112,72,Math.PI,1.5*Math.PI),mat(0xf8dde7,{side:THREE.BackSide,roughness:.95}));inner.userData.key='membraneInner';
+  const head=mat(0xee86a8,{roughness:.45}),tail=mat(0xf6c75e,{roughness:.7});
+  for(const f of [0,1]){memG.add(new THREE.Mesh(new THREE.TubeGeometry(arc(R-.05,f),140,.075,8),head));memG.add(new THREE.Mesh(new THREE.TubeGeometry(arc(R-.15,f),140,.1,8),tail));memG.add(new THREE.Mesh(new THREE.TubeGeometry(arc(R-.26,f),140,.075,8),head))}
+  memG.add(outer,inner);entry(L,'membrane',memG,null,{dur:1.3});
+  /* channels */
+  const chanG=new THREE.Group(),chanList=[];
+  {const geo=new THREE.CylinderGeometry(.24,.24,.72,16,1,true);const m1=mat(0x24a99a,{side:THREE.DoubleSide,roughness:.4}),m2=mat(0x3d6fd6,{side:THREE.DoubleSide,roughness:.4});
+   const spots=[[338,12],[330,22],[346,2],[334,-2],[343,24]];
+   for(let i=0;i<36;i++){const s=spots[i]||[rr(96,354),rr(-62,62)];const n=sph(s[0],s[1],1);const g=new THREE.Group();g.add(new THREE.Mesh(geo,i%4===3?m2:m1));
+     g.position.copy(n.clone().multiplyScalar(R-.15));g.quaternion.setFromUnitVectors(new V(0,1,0),n);chanG.add(g);chanList.push({g,n})}}
+  entry(L,'channels',chanG,chanG.children,{stag:.025,dur:.7});
+  /* cytoplasm */
+  const cytoG=new THREE.Group();let cytoPts;const cytoBase=[];
+  {const m=softMat(0x8fd0ee,.24);cytoG.add(halfDisc(R-.3,0,m),halfDisc(R-.3,1,m));
+   const N=700,pos=new Float32Array(N*3);
+   for(let i=0;i<N;i++){let p;do{p=new V(rr(-9.4,9.4),rr(-9.4,9.4),rr(-9.4,9.4))}while(p.length()>9.3||p.length()<3.2||!kept(p.x,p.z));cytoBase.push({p,ph:rr(0,TAU),sp:rr(.4,1.1)});pos.set([p.x,p.y,p.z],i*3)}
+   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+   cytoPts=new THREE.Points(g,new THREE.PointsMaterial({size:.17,map:dotTex,color:0x4d9fcc,transparent:true,depthWrite:false,alphaTest:.05,opacity:.85}));cytoG.add(cytoPts)}
+  entry(L,'cytoplasm',cytoG,null,{dur:1.1});
+  const POS={nucleolus:polar(225,1.05,.3),polysome:polar(115,7.6,-1.0),hero:new V(-.71,2.4,6.76),lysoA:polar(135,6.0,3.6),
+    centro:polar(160,5.0,-3.6),ser:polar(180,6.8,.6),golgi:polar(332,6.6,1.4),L0:polar(338,7.2,-4.2),D:polar(352,6.8,-4.4)};
+  /* cytoskeleton */
+  const skG=new THREE.Group(),fibers=[];
+  {const m=mat(0x8c98d6,{roughness:.5}),cm=mat(0x5b6bc4,{roughness:.4});
+   for(let i=0;i<44;i++){const end=i===0?sph(104,-8,9.55):(()=>{let p;do{p=sph(rr(96,354),rr(-70,70),9.55)}while(!kept(p.x,p.z));return p})();
+     let mid=POS.centro.clone().add(end).multiplyScalar(.5).add(new V(rr(-1,1),rr(-1,1),rr(-1,1)));if(mid.length()<4.2)mid.setLength(4.4);
+     const cur=new THREE.QuadraticBezierCurve3(POS.centro.clone(),mid,end);fibers.push(cur);skG.add(new THREE.Mesh(new THREE.TubeGeometry(cur,40,.04,5),m))}
+   const c1=new THREE.Mesh(new THREE.CylinderGeometry(.16,.16,.62,12),cm);c1.position.copy(POS.centro);const c2=c1.clone();c2.rotation.z=Math.PI/2;c2.position.copy(POS.centro).add(new V(.12,.1,0));skG.add(c1,c2)}
+  entry(L,'cyto',skG,null,{dur:1.3});
+  /* nucleus */
+  const nucG=new THREE.Group();
+  {nucG.add(new THREE.Mesh(new THREE.SphereGeometry(NR,72,48,Math.PI,1.5*Math.PI),mat(0x8a6ee3,{roughness:.42})));
+   nucG.add(new THREE.Mesh(new THREE.SphereGeometry(NR-.2,72,48,Math.PI,1.5*Math.PI),mat(0xdcd0f8,{side:THREE.BackSide,roughness:.9,glow:0x8a6ee3})));
+   const rim=mat(0x5d40c2,{roughness:.4});
+   for(const f of [0,1]){nucG.add(new THREE.Mesh(new THREE.TubeGeometry(arc(NR-.04,f),90,.055,8),rim));nucG.add(new THREE.Mesh(new THREE.TubeGeometry(arc(NR-.17,f),90,.055,8),rim))}
+   const cut=softMat(0xb9a6f2,.28);nucG.add(halfDisc(NR-.2,0,cut),halfDisc(NR-.2,1,cut));
+   const pg=new THREE.TorusGeometry(.15,.055,8,18),pm=mat(0x4b2fa8,{roughness:.4});
+   for(let i=0;i<54;i++){let n;do{n=sph(rr(0,360),rr(-75,75),1)}while(!kept(n.x-.15,n.z-.15));const t=new THREE.Mesh(pg,pm);t.position.copy(n.clone().multiplyScalar(NR+.01));t.lookAt(n.clone().multiplyScalar(NR+2));nucG.add(t)}}
+  entry(L,'nucleus',nucG,null,{dur:1.1});
+  /* chromatin */
+  const chrG=new THREE.Group(),strands=[];
+  {const m=mat(0xc8458f,{roughness:.45}),m2=mat(0xa83a86,{roughness:.45});const inside=p=>p.length()<NR-.45&&kept(p.x,p.z);
+   for(let i=0;i<9;i++){let s;if(i===0)s=polar(215,1.5,.9);else do{s=new V(rr(-2,2),rr(-2,2),rr(-2,2))}while(!inside(s));const c=walk(s,44,.32,inside);strands.push(c);chrG.add(new THREE.Mesh(new THREE.TubeGeometry(c,220,.07,6),i%2?m2:m))}}
+  entry(L,'chromatin',chrG,null,{dur:1.2});
+  /* nucleolus */
+  const nucleolus=new THREE.Mesh(deform(new THREE.IcosahedronGeometry(.72,3),v=>{v.multiplyScalar(1+.07*Math.sin(v.x*9)*Math.sin(v.y*8+1)*Math.sin(v.z*7))}),mat(0x3a1c73,{roughness:.55,glow:0x7c4ddb}));
+  nucleolus.position.copy(POS.nucleolus);entry(L,'nucleolus',nucleolus,null,{dur:.9});
+  /* ribosomes */
+  const riboG=new THREE.Group();
+  {const N=250,im=new THREE.InstancedMesh(new THREE.SphereGeometry(.11,8,6),mat(0x30409a,{roughness:.5,glow:0x6a7cff}),N+8);const M=new THREE.Matrix4();
+   for(let i=0;i<8;i++){const a=i/8*TAU*1.4;const p=POS.polysome.clone().add(new V(Math.cos(a)*.45,i*.11-.4,Math.sin(a)*.45));M.makeTranslation(p.x,p.y,p.z);im.setMatrixAt(i,M)}
+   for(let i=8;i<N+8;i++){let p;do{p=new V(rr(-9.2,9.2),rr(-9.2,9.2),rr(-9.2,9.2))}while(p.length()>9.2||p.length()<5.2||!kept(p.x,p.z));M.makeTranslation(p.x,p.y,p.z);im.setMatrixAt(i,M)}
+   riboG.add(im)}
+  entry(L,'ribosomes',riboG,null,{dur:1.3});
+  /* rough ER */
+  const BANDS=[[3.55,3.3,0],[4.15,2.8,1.7],[4.75,2.2,3.1]];
+  const erPoint=(bd,u,v,out)=>{const r0=bd[0],h=bd[1],k=bd[2];const a=(110+240*u)*D2R;const r=r0+.26*Math.sin(a*7+k)+.1*Math.sin(v*9+k);return (out||new V()).set(r*Math.cos(a),(v-.5)*h+.22*Math.sin(a*3+k),r*Math.sin(a))};
+  const rerG=new THREE.Group();
+  {const m=mat(0x72b3ea,{side:THREE.DoubleSide,roughness:.5});const im=new THREE.InstancedMesh(new THREE.SphereGeometry(.075,7,5),mat(0x26318a,{roughness:.5,glow:0x5a6cff}),BANDS.length*150);const M=new THREE.Matrix4();let n=0;
+   BANDS.forEach(bd=>{rerG.add(new THREE.Mesh(surface((u,v,o)=>erPoint(bd,u,v,o),180,14),m));
+     for(let i=0;i<150;i++){const u=rnd(),v=rnd();const p=erPoint(bd,u,v);const a=(110+240*u)*D2R;const sd=rnd()<.5?1:-1;p.x+=Math.cos(a)*.1*sd;p.z+=Math.sin(a)*.1*sd;M.makeTranslation(p.x,p.y,p.z);im.setMatrixAt(n++,M)}});
+   rerG.add(im)}
+  entry(L,'roughER',rerG,null,{dur:1.3});
+  /* smooth ER */
+  const serG=new THREE.Group();serG.position.copy(POS.ser);
+  {const m=mat(0x6fd3bf,{roughness:.45});const inside=p=>{const w=p.clone().add(POS.ser);return p.length()<1.9&&w.length()<9.3&&kept(w.x,w.z)};
+   for(let i=0;i<9;i++){const c=walk(new V(rr(-.8,.8),rr(-.8,.8),rr(-.8,.8)),11,.42,inside);if(c.points.length>2)serG.add(new THREE.Mesh(new THREE.TubeGeometry(c,60,.17,8),m))}}
+  entry(L,'smoothER',serG,null,{dur:1});
+  /* golgi */
+  const golG=makeGolgi();golG.position.copy(POS.golgi);const golDir=new V(POS.golgi.x,0,POS.golgi.z).normalize();golG.quaternion.setFromUnitVectors(new V(0,1,0),golDir);
+  entry(L,'golgi',golG,null,{dur:1});
+  /* mitochondria */
+  const MITO=[[128,6.4,-4.2],[200,7.3,3.4],[205,7.0,-3.6],[255,7.4,-1.5],[285,7.2,3.2],[312,7.6,-2.6],[354,7.8,2.6]];
+  const mitoG=new THREE.Group(),mitos=[];
+  {const m=mat(0xffffff,{map:mitoTex,roughness:.45,glow:0xff6a40});
+   MITO.forEach(q=>{const g=new THREE.Group();g.add(new THREE.Mesh(mitoGeo,m));g.position.copy(polar(q[0],q[1],q[2]));g.rotation.set(rr(0,TAU),rr(0,TAU),rr(0,TAU));g.scale.setScalar(rr(.85,1.08));g.userData.rot=g.rotation.clone();g.userData.ph=rr(0,TAU);mitoG.add(g);mitos.push(g)})}
+  entry(L,'mito',mitoG,mitoG.children,{stag:.09,dur:.9});
+  /* hero mitochondrion */
+  const heroG=new THREE.Group();heroG.position.copy(POS.hero);
+  {const half=new THREE.SphereGeometry(1,56,36,Math.PI,Math.PI);
+   const o=new THREE.Mesh(half,mat(0xff7a57,{roughness:.45}));o.scale.set(2.3,1,1);
+   const ob=new THREE.Mesh(half,mat(0xffd6c7,{side:THREE.BackSide,roughness:.8,glow:0xff7a57}));ob.scale.set(2.29,.99,.99);
+   const ib=new THREE.Mesh(half,mat(0xffb497,{side:THREE.BackSide,roughness:.8,glow:0xff7a57}));ib.scale.set(2.05,.82,.82);heroG.add(o,ob,ib);
+   const cm=mat(0xff9672,{side:THREE.DoubleSide,roughness:.5,glow:0xff7a57});
+   for(let i=0;i<8;i++){const x=-1.62+i*.46;const rad=.82*Math.sqrt(Math.max(0,1-(x/2.05)**2));const top=i%2===0;
+     heroG.add(new THREE.Mesh(surface((u,v,out)=>{const ang=Math.PI+(top?v*.62:.38+v*.62)*Math.PI;const rho=rad*(.3+.7*u);return out.set(x+.06*Math.sin(u*10+v*5),rho*Math.cos(ang),rho*Math.sin(ang))},10,16),cm))}
+   const rimO=mat(0xffc3ae,{roughness:.5});
+   const ell=(rx,ry)=>{const pts=[];for(let i=0;i<=72;i++){const t=i/72*TAU;pts.push(new V(rx*Math.cos(t),ry*Math.sin(t),0))}return new THREE.CatmullRomCurve3(pts,true)};
+   heroG.add(new THREE.Mesh(new THREE.TubeGeometry(ell(2.3,1),120,.05,8,true),rimO));heroG.add(new THREE.Mesh(new THREE.TubeGeometry(ell(2.05,.82),120,.04,8,true),rimO));
+   const dna=new THREE.Mesh(new THREE.TorusGeometry(.13,.03,6,20),mat(0xc8458f));dna.position.set(.25,-.15,-.45);heroG.add(dna);
+   heroG.lookAt(POS.hero.clone().add(new V(.74,.31,.6)))}
+  entry(L,'mitoHero',heroG,null,{dur:1});
+  /* lysosomes */
+  const lysoG=new THREE.Group();const lysoGeo=new THREE.IcosahedronGeometry(.46,3),lysoMat=mat(0x4cb86f,{roughness:.35});
+  const lysos=[POS.L0,POS.lysoA,polar(240,6.2,3.8),polar(300,5.6,-1.8),polar(105,8.4,-4.0)].map(p=>{const g=new THREE.Group();g.add(new THREE.Mesh(lysoGeo,lysoMat));
+    for(let i=0;i<5;i++){const d=new THREE.Mesh(new THREE.SphereGeometry(.07,6,5),mat(0x2a7a46));d.position.copy(sph(rr(0,360),rr(-60,60),.47));g.add(d)}g.position.copy(p);lysoG.add(g);return g});
+  entry(L,'lyso',lysoG,lysoG.children,{stag:.1,dur:.8});
+  const debris=new THREE.Mesh(deform(new THREE.IcosahedronGeometry(.55,2),v=>{v.x*=1.5;v.multiplyScalar(1+.18*Math.sin(v.x*7)*Math.cos(v.y*6))}),mat(0xa49690,{flatShading:true,roughness:.8}));
+  debris.position.copy(POS.D);debris.rotation.set(.4,.8,.2);entry(L,'debris',debris,null,{dur:.7});
+  const shadow=new THREE.Mesh(new THREE.PlaneGeometry(30,30),new THREE.MeshBasicMaterial({map:shadowTex,transparent:true,depthWrite:false}));shadow.rotation.x=-Math.PI/2;shadow.position.y=-11.2;L.root.add(shadow);
+
+  /* effects */
+  const M4=new THREE.Matrix4(),Q=new THREE.Quaternion(),S=new V(),P=new V();
+  const trans=new THREE.InstancedMesh(new THREE.SphereGeometry(.12,10,8),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.35}),18);
+  for(let i=0;i<18;i++)trans.setColorAt(i,new THREE.Color(i%3===0?0x3ea0e8:0x37b36a));trans.visible=false;L.root.add(trans);
+  const atp=new THREE.InstancedMesh(new THREE.SphereGeometry(.1,8,6),new THREE.MeshStandardMaterial({color:0xffcf3a,emissive:0xffa800,emissiveIntensity:.7,roughness:.3}),96);
+  const atpData=[];for(let i=0;i<96;i++)atpData.push({m:i%8,d:new V(rr(-1,1),rr(-1,1),rr(-1,1)).normalize(),ph:rnd()});atp.visible=false;L.root.add(atp);
+  const golCis=POS.golgi.clone().addScaledVector(golDir,-.95),golTrans=POS.golgi.clone().addScaledVector(golDir,.95);
+  const journey=new THREE.CatmullRomCurve3([new V(-.6,.6,-1.1),sph(322,10,NR),polar(323,3.8,.7),polar(329,4.6,.9),golCis,POS.golgi.clone(),golTrans,golTrans.clone().addScaledVector(golDir,1.0).add(new V(0,.4,0)),sph(338,12,9.86),sph(338,12,11.8)]);
+  const jG=new THREE.Group();jG.visible=false;L.root.add(jG);
+  const orb=new THREE.Mesh(new THREE.SphereGeometry(.2,18,14),new THREE.MeshStandardMaterial({color:0xff3d7f,emissive:0xff3d7f,emissiveIntensity:.55}));
+  const vesicle=new THREE.Mesh(new THREE.SphereGeometry(.42,22,16),new THREE.MeshStandardMaterial({color:0xffd27a,transparent:true,opacity:.42,depthWrite:false}));
+  jG.add(new THREE.Mesh(new THREE.TubeGeometry(journey,200,.035,6),new THREE.MeshBasicMaterial({color:0xff3d7f,transparent:true,opacity:.45})),orb,vesicle);
+  const JST=[[.12,b('mRNA leaves the nucleus','mRNA केन्द्रक से निकलता है'),b('Stop 1 · instructions','पड़ाव 1 · निर्देश')],
+    [.36,b('Built by ribosomes on the rough ER','खुरदरी ER पर राइबोसोम इसे बनाते हैं'),b('Stop 2 · factory','पड़ाव 2 · कारखाना')],
+    [.62,b('Finished and packed in the Golgi','गॉल्जी में पूरा होकर पैक होता है'),b('Stop 3 · post office','पड़ाव 3 · डाकघर')],
+    [.9,b('Carried to the wall in a vesicle','पुटिका में दीवार तक जाता है'),b('Stop 4 · delivery','पड़ाव 4 · डिलीवरी')],
+    [1.01,b('Released outside the cell','कोशिका के बाहर छोड़ दिया गया'),b('Stop 5 · shipped!','पड़ाव 5 · भेज दिया!')]];
+  const PROTEIN=b('Protein','प्रोटीन');
+  let jU=0,eatPhase=0;
+
+  L.onStep=()=>{lysos[0].position.copy(POS.L0);lysos[0].userData.fx=1;debris.userData.fx=1};
+  L.dyn=(kind)=>{
+    if(kind==='journey'){const sg=JST.find(z=>jU<z[0])||JST[4];return {n:sg[1],s:sg[2],en:PROTEIN,at:orb.position}}
+    if(kind==='eat'){const n=eatPhase<.45?b('Lysosome on its way','लाइसोसोम रास्ते में'):eatPhase<.8?b('Digesting the old part','पुराने हिस्से को पचा रहा है'):b('Pieces recycled','टुकड़े रीसाइकल हो गए');
+      return {n,s:b('Lysosome · autophagy','लाइसोसोम · ऑटोफ़ैजी'),en:b('Lysosome','Lysosome'),at:lysos[0].position}}};
+  L.fx=(s,dt,t)=>{const fx=s&&s.fx;
+    if(cytoG.visible){const a=cytoPts.geometry.attributes.position;const tt=now*(RM?.2:1);
+      for(let i=0;i<cytoBase.length;i++){const q=cytoBase[i];a.setXYZ(i,q.p.x+.12*Math.sin(tt*q.sp+q.ph),q.p.y+.12*Math.cos(tt*q.sp*1.3+q.ph),q.p.z+.12*Math.sin(tt*q.sp*.8+q.ph*2))}a.needsUpdate=true}
+    if(mitoG.visible)mitos.forEach(g=>{g.rotation.x=g.userData.rot.x+.06*Math.sin(now*.7+g.userData.ph);g.rotation.z=g.userData.rot.z+.06*Math.cos(now*.6+g.userData.ph)});
+    trans.visible=fx==='transport'&&t>1.2;
+    if(trans.visible){for(let i=0;i<18;i++){const c=chanList[i%5],u=((now*.32)+i/18*1.7)%1;P.copy(c.n).multiplyScalar(R+2-u*4);S.setScalar(Math.max(.001,Math.min(1,Math.sin(u*Math.PI)*1.6)));M4.compose(P,Q.identity(),S);trans.setMatrixAt(i,M4)}trans.instanceMatrix.needsUpdate=true}
+    atp.visible=fx==='atp'&&t>1.2;
+    if(atp.visible){const src=mitos.concat([heroG]);for(let i=0;i<96;i++){const d=atpData[i];const u=(now*.45+d.ph)%1;const m=src[d.m%src.length];P.copy(m.position).addScaledVector(d.d,.7+u*2.3);S.setScalar(Math.max(.001,Math.sin(u*Math.PI)));M4.compose(P,Q.identity(),S);atp.setMatrixAt(i,M4)}atp.instanceMatrix.needsUpdate=true}
+    jG.visible=fx==='journey';
+    if(jG.visible){jU=(t*.11*st.speed)%1;journey.getPointAt(jU,orb.position);vesicle.position.copy(orb.position);vesicle.visible=jU>.6&&jU<.93;orb.scale.setScalar(1+.15*Math.sin(now*8))}
+    if(fx==='eat'){eatPhase=(t%6)/6;const Ly=lysos[0],D2=POS.D.clone().add(new V(-.25,.15,0));
+      if(eatPhase<.45){Ly.position.lerpVectors(POS.L0,D2,easeIO(eatPhase/.45));Ly.userData.fx=1;debris.userData.fx=1}
+      else if(eatPhase<.8){const e=(eatPhase-.45)/.35;Ly.userData.fx=1+.35*Math.sin(e*Math.PI*.5);debris.userData.fx=Math.max(.001,1-easeIO(e))}
+      else{const e=easeIO((eatPhase-.8)/.2);Ly.position.lerpVectors(D2,POS.L0,e);Ly.userData.fx=1.35-.35*e;debris.userData.fx=e>.6?(e-.6)/.4:.001}}};
+
+  L.CH=[
+ {name:b('Cell membrane','कोशिका झिल्ली'),city:b('The city wall','शहर की दीवार'),icon:'mem',steps:[
+  {t:b('Wrap it in a membrane','झिल्ली से लपेटें'),show:['membrane'],focus:'membrane',cam:view(O,38,24,34),label:{k:'membrane',at:()=>sph(345,20,R)},
+   x:b('Every cell starts with a boundary. The cell membrane is a soft, oily skin that wraps the whole cell and keeps the inside in.','हर कोशिका की एक सीमा होती है। कोशिका झिल्ली (cell membrane) एक मुलायम, तैलीय परत है जो पूरी कोशिका को लपेटकर अंदर की चीज़ों को अंदर रखती है।'),
+   why:b(['The membrane is made of fat molecules called phospholipids. Their heads like water and their tails avoid it, so they line up tail-to-tail and form a double layer all by themselves.','Look at the cut edge: pink heads on the outside and inside, yellow tails hiding in the middle. That sandwich is called the lipid bilayer.'],
+     ['झिल्ली वसा के अणुओं से बनी है जिन्हें फ़ॉस्फ़ोलिपिड (phospholipid) कहते हैं। इनका सिर पानी पसंद करता है और पूँछ पानी से दूर रहती है, इसलिए ये अपने आप पूँछ-से-पूँछ मिलाकर दोहरी परत बना लेते हैं।','कटे किनारे को देखिए: बाहर और अंदर गुलाबी सिर, बीच में छिपी पीली पूँछें। इस सैंडविच को लिपिड बाइलेयर (lipid bilayer) कहते हैं।']),
+   wow:b('The membrane is only about 8 nanometres thick. You would need to stack more than 10,000 of them to match one sheet of paper.','झिल्ली सिर्फ़ लगभग 8 नैनोमीटर मोटी होती है। कागज़ की एक शीट जितनी मोटाई के लिए 10,000 से ज़्यादा झिल्लियाँ एक के ऊपर एक रखनी पड़ेंगी।')},
+  {t:b('Add the gates','द्वार लगाएँ'),show:['channels'],focus:'channels',fx:'transport',cam:view(sph(338,12,R),352,14,8.5),label:{k:'channels',at:()=>sph(338,12,R+.25)},
+   x:b('Proteins poke right through the membrane. They work like guarded gates, letting water and food in and sending waste out.','प्रोटीन झिल्ली के आर-पार निकले होते हैं। ये पहरेदार वाले द्वार की तरह काम करते हैं: पानी और भोजन को अंदर आने देते हैं और कचरे को बाहर भेजते हैं।'),
+   why:b(['Tiny molecules like oxygen slip straight through the fat layer. Bigger ones, like glucose (sugar), need a protein gate.','Because the membrane chooses what passes, we call it selectively permeable. The green dots here are glucose and the blue ones are water.'],
+     ['ऑक्सीजन जैसे छोटे अणु सीधे वसा की परत से निकल जाते हैं। ग्लूकोज़ (शक्कर) जैसे बड़े अणुओं को प्रोटीन द्वार चाहिए।','क्योंकि झिल्ली खुद चुनती है कि क्या अंदर जाए, इसे वरणात्मक पारगम्य (selectively permeable) कहते हैं। यहाँ हरे बिंदु ग्लूकोज़ हैं और नीले बिंदु पानी।']),
+   exam:b('Selectively permeable = lets some substances through and stops others. NCERT asks this a lot.','वरणात्मक पारगम्य (selectively permeable) = कुछ पदार्थों को जाने देती है और कुछ को रोकती है। NCERT में यह अक्सर पूछा जाता है।'),
+   wow:b('Put a raisin in water and it swells up. That is water rushing in through membranes, a process called osmosis.','किशमिश को पानी में रखो तो वह फूल जाती है। यह पानी के झिल्लियों से होकर अंदर जाने के कारण होता है, जिसे परासरण (osmosis) कहते हैं।')}
+ ]},
+ {name:b('Cytoplasm','कोशिका द्रव्य'),city:b('Streets and railways','सड़कें और रेल'),icon:'cyt',steps:[
+  {t:b('Fill it with cytoplasm','कोशिका द्रव्य भरें'),show:['cytoplasm'],focus:'cytoplasm',cam:view(O,46,22,28),label:{k:'cytoplasm',at:()=>new V(6.5,-3.2,0)},
+   x:b('Pour in cytoplasm, a jelly-like liquid that fills the cell. Every other part will float in it.','कोशिका द्रव्य (cytoplasm) डालिए, एक जेली जैसा तरल जो पूरी कोशिका को भरता है। बाकी सारे हिस्से इसी में तैरेंगे।'),
+   why:b(['Cytoplasm is mostly water, mixed with salts, sugars and proteins. Thousands of chemical reactions happen in it every second.','Think of it as a busy market square rather than still water.'],
+     ['कोशिका द्रव्य ज़्यादातर पानी है, जिसमें लवण, शक्कर और प्रोटीन घुले होते हैं। इसमें हर सेकंड हज़ारों रासायनिक क्रियाएँ होती हैं।','इसे शांत पानी नहीं, बल्कि एक भीड़-भाड़ वाला बाज़ार समझिए।']),
+   wow:b('Nothing in a cell sits still. The tiny dots you see are always jiggling and bumping, and that is how molecules find each other.','कोशिका में कुछ भी स्थिर नहीं बैठता। ये छोटे बिंदु लगातार हिलते और टकराते रहते हैं, और इसी तरह अणु एक-दूसरे को ढूँढ़ते हैं।')},
+  {t:b('Put up the scaffolding','ढाँचा खड़ा करें'),show:['cyto'],focus:'cyto',cam:view(O,52,30,25),label:{k:'cyto',at:()=>fibers[0].getPoint(.62)},
+   x:b('Thin protein fibres criss-cross the cell. This cytoskeleton holds the cell in shape and works like a railway for moving cargo.','पतले प्रोटीन रेशे पूरी कोशिका में फैले होते हैं। यह कोशिका कंकाल (cytoskeleton) कोशिका का आकार बनाए रखता है और सामान ढोने के लिए रेल की पटरी की तरह काम करता है।'),
+   why:b(['The fibres grow out from a hub near the nucleus called the centrosome.','Motor proteins walk along the fibres carrying packages, a bit like trains on tracks. The fibres can be taken apart and rebuilt in minutes.'],
+     ['ये रेशे केन्द्रक के पास के एक केंद्र से निकलते हैं जिसे तारककाय (centrosome) कहते हैं।','मोटर प्रोटीन इन रेशों पर पैकेट लेकर चलते हैं, जैसे पटरियों पर रेलगाड़ी। रेशे कुछ ही मिनटों में खुलकर दोबारा बन सकते हैं।']),
+   wow:b('Motor proteins really do take steps. One of them, kinesin, walks on two "feet", moving about 8 nanometres with every step.','मोटर प्रोटीन सच में कदम बढ़ाते हैं। काइनेसिन (kinesin) नाम का प्रोटीन दो "पैरों" पर चलता है और हर कदम में लगभग 8 नैनोमीटर आगे बढ़ता है।')}
+ ]},
+ {name:b('Nucleus','केन्द्रक'),city:b('City hall','नगर भवन'),icon:'nuc',steps:[
+  {t:b('Drop in the nucleus','केन्द्रक रखें'),show:['nucleus'],focus:'nucleus',cam:view(O,45,22,14),label:{k:'nucleus',at:()=>sph(325,20,NR)},
+   x:b('The nucleus is the control room. It is the biggest part of the cell and has its own double wall, called the nuclear envelope.','केन्द्रक (nucleus) कोशिका का कंट्रोल रूम है। यह कोशिका का सबसे बड़ा हिस्सा है और इसकी अपनी दोहरी दीवार होती है, जिसे केन्द्रक झिल्ली (nuclear envelope) कहते हैं।'),
+   why:b(['The envelope is dotted with holes called nuclear pores. Messages travel out through the pores and tell the rest of the cell what to build.','Cells with a proper nucleus, like yours, are called eukaryotic. Bacteria have no nucleus, so they are prokaryotic.'],
+     ['इस झिल्ली में छेद होते हैं जिन्हें केन्द्रक छिद्र (nuclear pores) कहते हैं। संदेश इन्हीं छिद्रों से बाहर जाकर बाकी कोशिका को बताते हैं कि क्या बनाना है।','आपकी कोशिकाओं की तरह जिनमें असली केन्द्रक होता है, उन्हें यूकैरियोटिक (eukaryotic) कहते हैं। बैक्टीरिया में केन्द्रक नहीं होता, इसलिए वे प्रोकैरियोटिक (prokaryotic) हैं।']),
+   exam:b('Eukaryote = has a nucleus with a membrane. Prokaryote (bacteria) = no nuclear membrane.','यूकैरियोट (eukaryote) = झिल्ली से घिरा केन्द्रक होता है। प्रोकैरियोट (prokaryote, बैक्टीरिया) = केन्द्रक झिल्ली नहीं होती।'),
+   wow:b('One nucleus can have thousands of pores, and each one checks every molecule that tries to pass.','एक केन्द्रक में हज़ारों छिद्र हो सकते हैं, और हर छिद्र अंदर-बाहर जाने वाले हर अणु की जाँच करता है।')},
+  {t:b('Unpack the DNA','DNA खोलें'),show:['chromatin'],focus:'chromatin',cam:view(O,45,30,9.5),label:{k:'chromatin',at:()=>strands[0].getPoint(.45)},
+   x:b('Inside the nucleus is DNA, the instruction book for building and running your body. Here it is loosely packed as chromatin.','केन्द्रक के अंदर DNA होता है, आपके शरीर को बनाने और चलाने की निर्देश पुस्तिका। यहाँ यह ढीला लिपटा है और इसे क्रोमैटिन (chromatin) कहते हैं।'),
+   why:b(['When a cell gets ready to divide, chromatin coils up tightly into chromosomes so it can be shared out evenly.','Human body cells have 46 chromosomes, arranged in 23 pairs.'],
+     ['जब कोशिका विभाजन की तैयारी करती है, तो क्रोमैटिन कसकर लिपटकर गुणसूत्र (chromosomes) बन जाता है, ताकि इसे बराबर बाँटा जा सके।','मनुष्य की शरीर कोशिकाओं में 46 गुणसूत्र होते हैं, जो 23 जोड़ियों में होते हैं।']),
+   exam:b('Chromatin = loose DNA and protein. Chromosomes = chromatin coiled up tight, seen during cell division.','क्रोमैटिन (chromatin) = ढीला DNA और प्रोटीन। गुणसूत्र (chromosomes) = कसकर लिपटा क्रोमैटिन, जो कोशिका विभाजन के समय दिखता है।'),
+   wow:b('Stretch out the DNA from just one of your cells and it would be about 2 metres long. It fits in a nucleus far smaller than a grain of sand.','आपकी सिर्फ़ एक कोशिका का DNA खींचकर सीधा करें तो वह लगभग 2 मीटर लंबा होगा। फिर भी यह रेत के एक दाने से भी बहुत छोटे केन्द्रक में समा जाता है।')},
+  {t:b('Find the nucleolus','केन्द्रिका ढूँढ़ें'),show:['nucleolus'],focus:'nucleolus',cam:view(POS.nucleolus,45,24,7),label:{k:'nucleolus',at:()=>POS.nucleolus},
+   x:b('The dark ball inside the nucleus is the nucleolus. It makes the parts for ribosomes, the cell\'s tiny builders.','केन्द्रक के अंदर की गहरी गेंद केन्द्रिका (nucleolus) है। यह राइबोसोम के पुर्ज़े बनाती है, जो कोशिका के नन्हे कारीगर हैं।'),
+   why:b(['Ribosome parts are made here, then pushed out through the nuclear pores and put together in the cytoplasm.'],['राइबोसोम के पुर्ज़े यहाँ बनते हैं, फिर केन्द्रक छिद्रों से बाहर निकलकर कोशिका द्रव्य में जोड़े जाते हैं।']),
+   wow:b('Cells that make a lot of protein often have extra-large nucleoli, because they need so many ribosomes.','जो कोशिकाएँ बहुत ज़्यादा प्रोटीन बनाती हैं, उनमें अक्सर केन्द्रिका बहुत बड़ी होती है, क्योंकि उन्हें ढेर सारे राइबोसोम चाहिए।')}
+ ]},
+ {name:b('Ribosomes & ER','राइबोसोम और ER'),city:b('The factories','कारखाने'),icon:'er',steps:[
+  {t:b('Scatter the ribosomes','राइबोसोम बिखेरें'),show:['ribosomes'],focus:'ribosomes',cam:view(POS.polysome,40,16,6),label:{k:'ribosomes',at:()=>POS.polysome},
+   x:b('Ribosomes are tiny machines that build proteins. They read the instructions sent from the nucleus and join amino acids together, one by one, like beads on a string.','राइबोसोम (ribosome) छोटी मशीनें हैं जो प्रोटीन बनाती हैं। ये केन्द्रक से आए निर्देश पढ़ती हैं और अमीनो अम्लों को एक-एक करके जोड़ती हैं, जैसे धागे में मोती।'),
+   why:b(['Proteins do almost every job in your body. Muscle, hair, enzymes and antibodies are all proteins.','The little spiral here is several ribosomes reading the same message at once, so the cell makes many copies quickly.'],
+     ['शरीर का लगभग हर काम प्रोटीन करते हैं। मांसपेशी, बाल, एंज़ाइम और एंटीबॉडी, सब प्रोटीन हैं।','यह छोटी घुमावदार कड़ी कई राइबोसोम हैं जो एक ही संदेश को एक साथ पढ़ रहे हैं, ताकि कोशिका जल्दी से कई प्रतियाँ बना सके।']),
+   wow:b('A single cell can hold around 10 million ribosomes. This model shows only a few hundred.','एक कोशिका में लगभग 1 करोड़ राइबोसोम हो सकते हैं। इस मॉडल में सिर्फ़ कुछ सौ दिखाए गए हैं।')},
+  {t:b('Fold in the rough ER','खुरदरी ER जोड़ें'),show:['roughER'],focus:'roughER',cam:view(polar(150,3.8,.4),48,26,13),label:{k:'roughER',at:()=>erPoint(BANDS[2],.0625,.8)},
+   x:b('The endoplasmic reticulum (ER) is a maze of folded membranes joined to the nucleus. Rough ER is covered in ribosomes, which make it look bumpy.','अंतर्द्रव्यी जालिका (endoplasmic reticulum, ER) मुड़ी हुई झिल्लियों का एक जाल है जो केन्द्रक से जुड़ा होता है। खुरदरी ER (rough ER) पर राइबोसोम चिपके होते हैं, इसलिए यह ऊबड़-खाबड़ दिखती है।'),
+   why:b(['Proteins made by these ribosomes are threaded inside the ER, where they are folded into the right shape.','Folding the membrane over and over packs a huge working surface into a small space.'],
+     ['इन राइबोसोम से बने प्रोटीन ER के अंदर भेजे जाते हैं, जहाँ उन्हें सही आकार में मोड़ा जाता है।','झिल्ली को बार-बार मोड़ने से छोटी जगह में काम करने की बहुत बड़ी सतह मिल जाती है।']),
+   wow:b('In some cells, the ER makes up more than half of all the membrane in the cell.','कुछ कोशिकाओं में ER कोशिका की कुल झिल्ली का आधे से भी ज़्यादा हिस्सा होती है।')},
+  {t:b('Add the smooth ER','चिकनी ER जोड़ें'),show:['smoothER'],focus:'smoothER',cam:view(POS.ser,30,20,11),label:{k:'smoothER',at:()=>POS.ser},
+   x:b('Smooth ER has no ribosomes. It makes lipids (fats) for new membranes and helps break down poisons and drugs.','चिकनी ER (smooth ER) पर राइबोसोम नहीं होते। यह नई झिल्लियों के लिए लिपिड (वसा) बनाती है और ज़हर व दवाओं को तोड़ने में मदद करती है।'),
+   why:b(['Your liver cells are packed with smooth ER, because one of the liver\'s jobs is to clean harmful chemicals out of your blood.'],['आपके यकृत (liver) की कोशिकाओं में बहुत सारी चिकनी ER होती है, क्योंकि यकृत का एक काम खून से हानिकारक रसायन साफ़ करना है।']),
+   exam:b('Rough ER makes proteins. Smooth ER makes lipids. Remember: rough = ribosomes.','खुरदरी ER प्रोटीन बनाती है। चिकनी ER लिपिड बनाती है। याद रखें: खुरदरी = राइबोसोम।'),
+   wow:b('The membranes the smooth ER builds become the walls of new organelles, and even new cell membrane.','चिकनी ER जो झिल्लियाँ बनाती है, वही नए अंगकों की दीवारें और नई कोशिका झिल्ली बनती हैं।')}
+ ]},
+ {name:b('Golgi apparatus','गॉल्जी उपकरण'),city:b('The post office','डाकघर'),icon:'gol',steps:[
+  {t:b('Stack the Golgi','गॉल्जी का ढेर लगाएँ'),show:['golgi'],focus:'golgi',cam:view(POS.golgi,50,22,8),label:{k:'golgi',at:()=>POS.golgi},
+   x:b('The Golgi apparatus is a stack of flat sacs. It receives proteins from the ER, finishes them, labels them and packs them for delivery.','गॉल्जी उपकरण (Golgi apparatus) चपटी थैलियों का एक ढेर है। यह ER से प्रोटीन लेता है, उन्हें पूरा करता है, उन पर लेबल लगाता है और डिलीवरी के लिए पैक करता है।'),
+   why:b(['Proteins enter on the side facing the nucleus and leave from the far side, packed inside little bubbles called vesicles.','The Golgi also helps make lysosomes, which you will meet soon.'],
+     ['प्रोटीन केन्द्रक वाली तरफ़ से अंदर आते हैं और दूसरी तरफ़ से निकलते हैं, पुटिका (vesicle) नाम के छोटे बुलबुलों में पैक होकर।','गॉल्जी लाइसोसोम बनाने में भी मदद करता है, जिनसे आप जल्द मिलेंगे।']),
+   wow:b('It is named after Camillo Golgi, an Italian scientist who first saw it in 1898 using a silver stain.','इसका नाम इटली के वैज्ञानिक कैमिलो गॉल्जी के नाम पर है, जिन्होंने 1898 में चाँदी के रंजक (silver stain) से इसे पहली बार देखा।')},
+  {t:b('Follow one protein','एक प्रोटीन का पीछा करें'),focus:'golgi',fx:'journey',dur:16,cam:view(polar(330,4.5,1),48,28,18),label:{dyn:'journey'},
+   x:b('Watch one protein\'s journey. Instructions leave the nucleus, ribosomes on the rough ER build the protein, the Golgi packs it, and a vesicle carries it out of the cell.','एक प्रोटीन की यात्रा देखिए। निर्देश केन्द्रक से निकलते हैं, खुरदरी ER पर राइबोसोम प्रोटीन बनाते हैं, गॉल्जी उसे पैक करता है, और एक पुटिका उसे कोशिका से बाहर ले जाती है।'),
+   why:b(['This is the cell\'s assembly line. Each stop adds something, just like a parcel that gets packed, addressed and shipped.','Nucleus → rough ER → Golgi → vesicle → cell membrane. Learn this order, it comes up in exams.'],
+     ['यह कोशिका की असेंबली लाइन है। हर पड़ाव पर कुछ जुड़ता है, जैसे एक पार्सल पैक होता है, पता लिखा जाता है और भेजा जाता है।','केन्द्रक → खुरदरी ER → गॉल्जी → पुटिका → कोशिका झिल्ली। यह क्रम याद रखिए, परीक्षा में आता है।']),
+   exam:b('Order of protein export: nucleus → ribosome on rough ER → Golgi → vesicle → membrane.','प्रोटीन बाहर भेजने का क्रम: केन्द्रक → खुरदरी ER पर राइबोसोम → गॉल्जी → पुटिका → झिल्ली।'),
+   wow:b('Insulin, the hormone that controls your blood sugar, leaves cells in your pancreas by exactly this route.','इंसुलिन, वह हार्मोन जो खून में शक्कर नियंत्रित करता है, अग्न्याशय (pancreas) की कोशिकाओं से ठीक इसी रास्ते से निकलता है।')}
+ ]},
+ {name:b('Mitochondria','माइटोकॉन्ड्रिया'),city:b('Power plants','बिजलीघर'),icon:'mit',steps:[
+  {t:b('Switch on the power plants','बिजलीघर चालू करें'),show:['mito','mitoHero'],focus:'mito',fx:'atp',cam:view(O,44,26,28),label:{k:'mito',at:()=>mitos[6].position},
+   x:b('Mitochondria turn food and oxygen into energy the cell can spend. That energy comes packed in a molecule called ATP, shown here as yellow sparks.','माइटोकॉन्ड्रिया (mitochondria) भोजन और ऑक्सीजन को ऐसी ऊर्जा में बदलते हैं जिसे कोशिका खर्च कर सके। यह ऊर्जा ATP नाम के अणु में पैक होती है, जिसे यहाँ पीली चिंगारियों से दिखाया गया है।'),
+   why:b(['Glucose + oxygen → carbon dioxide + water + energy. This is cellular respiration.','It is the reason you breathe in oxygen and breathe out carbon dioxide.'],
+     ['ग्लूकोज़ + ऑक्सीजन → कार्बन डाइऑक्साइड + पानी + ऊर्जा। इसे कोशिकीय श्वसन (cellular respiration) कहते हैं।','इसी कारण आप ऑक्सीजन अंदर लेते हैं और कार्बन डाइऑक्साइड बाहर छोड़ते हैं।']),
+   exam:b('Mitochondria are called the powerhouse of the cell. ATP is the energy currency.','माइटोकॉन्ड्रिया को कोशिका का बिजलीघर (powerhouse) कहते हैं। ATP ऊर्जा की मुद्रा (energy currency) है।'),
+   wow:b('Each of your cells uses roughly 10 million ATP molecules every second.','आपकी हर कोशिका हर सेकंड लगभग 1 करोड़ ATP अणु खर्च करती है।')},
+  {t:b('Look inside one','एक को अंदर से देखें'),focus:'mitoHero',fx:'atp',cam:view(POS.hero,40,18,6.2),label:{n:b('Cristae','क्रिस्टी'),s:b('folded inner membrane','मुड़ी हुई भीतरी झिल्ली'),at:()=>POS.hero},
+   x:b('Slice one open. A smooth outer membrane wraps a heavily folded inner membrane. The folds are called cristae.','एक को काटकर खोलिए। चिकनी बाहरी झिल्ली के अंदर एक बहुत ज़्यादा मुड़ी हुई भीतरी झिल्ली है। इन मोड़ों को क्रिस्टी (cristae) कहते हैं।'),
+   why:b(['More folds mean more membrane, and more membrane means more room to make ATP.','Your lungs and intestines use the same trick: lots of folding to pack a big surface into a small space.'],
+     ['ज़्यादा मोड़ यानी ज़्यादा झिल्ली, और ज़्यादा झिल्ली यानी ATP बनाने के लिए ज़्यादा जगह।','आपके फेफड़े और आँतें भी यही तरकीब अपनाते हैं: छोटी जगह में बड़ी सतह समाने के लिए खूब सारे मोड़।']),
+   wow:b('Mitochondria carry their own small ring of DNA (the pink loop in the middle), and you inherited all of yours from your mother.','माइटोकॉन्ड्रिया का अपना छोटा गोल DNA होता है (बीच में गुलाबी छल्ला), और आपके सारे माइटोकॉन्ड्रिया आपको माँ से मिले हैं।')}
+ ]},
+ {name:b('Lysosomes','लाइसोसोम'),city:b('Recycling crew','रीसाइक्लिंग दल'),icon:'lys',steps:[
+  {t:b('Send in the clean-up crew','सफ़ाई दल भेजें'),show:['lyso'],focus:'lyso',cam:view(O,44,24,25),label:{k:'lyso',at:()=>POS.lysoA},
+   x:b('Lysosomes are small bags full of digestive enzymes. They break down worn-out parts, food particles and germs that get inside.','लाइसोसोम (lysosome) पाचक एंज़ाइमों से भरी छोटी थैलियाँ हैं। ये पुराने हिस्सों, भोजन के कणों और अंदर घुस आए कीटाणुओं को तोड़ देते हैं।'),
+   why:b(['The enzymes only work in acid, and the inside of a lysosome is acidic.','If a lysosome bursts, its enzymes can digest the cell itself. That is why lysosomes are nicknamed suicide bags.'],
+     ['ये एंज़ाइम सिर्फ़ अम्ल में काम करते हैं, और लाइसोसोम का अंदरूनी हिस्सा अम्लीय होता है।','अगर लाइसोसोम फट जाए तो उसके एंज़ाइम कोशिका को ही पचा सकते हैं। इसीलिए लाइसोसोम को आत्मघाती थैली (suicide bags) कहते हैं।']),
+   exam:b('Lysosomes = suicide bags of the cell. They are formed by the Golgi apparatus.','लाइसोसोम = कोशिका की आत्मघाती थैली (suicide bags)। ये गॉल्जी उपकरण से बनते हैं।'),
+   wow:b('Lysosomes were discovered by Christian de Duve, who shared the Nobel Prize for it in 1974.','लाइसोसोम की खोज क्रिश्चियन डी ड्यूव ने की थी, जिन्हें इसके लिए 1974 में साझा नोबेल पुरस्कार मिला।')},
+  {t:b('Watch it recycle','रीसाइक्लिंग देखें'),temp:['debris'],focus:'lyso',fx:'eat',dur:14,cam:view(new V(6.95,-4.4,-1.9),70,14,7.5),label:{dyn:'eat'},
+   x:b('A worn-out piece of a mitochondrion is falling apart. Watch a lysosome reach it and digest it, so the useful pieces can be reused.','माइटोकॉन्ड्रिया का एक पुराना टुकड़ा टूट रहा है। देखिए कैसे एक लाइसोसोम उस तक पहुँचकर उसे पचाता है, ताकि काम के हिस्से दोबारा इस्तेमाल हो सकें।'),
+   why:b(['Recycling old parts saves the cell energy and raw materials.','This self-cleaning is called autophagy, which means "self-eating".'],['पुराने हिस्सों को रीसाइकल करने से कोशिका की ऊर्जा और कच्चा माल बचता है।','इस आत्म-सफ़ाई को ऑटोफ़ैजी (autophagy) कहते हैं, जिसका मतलब है "खुद को खाना"।']),
+   wow:b('Yoshinori Ohsumi won the 2016 Nobel Prize for showing how autophagy works.','योशिनोरी ओहसुमी को 2016 में यह दिखाने के लिए नोबेल पुरस्कार मिला कि ऑटोफ़ैजी कैसे काम करती है।')}
+ ]},
+ {name:b('Test yourself','खुद को परखें'),city:b('Become a city guide','शहर के गाइड बनें'),icon:'quiz',quiz:true,steps:[{t:b('Tap the right part','सही हिस्से पर टैप करें'),quiz:true,cam:view(O,42,26,32)}]}
+  ];
+  L.QUIZ=[
+   {q:b('Tap city hall: the part that stores the DNA.','नगर भवन पर टैप करें: वह हिस्सा जिसमें DNA रखा है।'),a:'nucleus'},
+   {q:b('Tap a power plant that makes ATP.','ATP बनाने वाले एक बिजलीघर पर टैप करें।'),a:'mito'},
+   {q:b('Tap the post office that packs and ships proteins.','प्रोटीन पैक करके भेजने वाले डाकघर पर टैप करें।'),a:'golgi'},
+   {q:b('Tap a clean-up bag full of digestive enzymes.','पाचक एंज़ाइमों से भरी सफ़ाई की थैली पर टैप करें।'),a:'lyso'},
+   {q:b('Tap the folded factory floor dotted with ribosomes.','राइबोसोम से भरे मुड़े हुए कारखाने के फ़र्श पर टैप करें।'),a:'roughER'},
+   {q:b('Tap the wall that decides what gets in and out.','उस दीवार पर टैप करें जो तय करती है कि क्या अंदर-बाहर जाएगा।'),a:'membrane'}];
+  L.cheat=['membrane','cytoplasm','cyto','nucleus','ribosomes','roughER','smoothER','golgi','mito','lyso'];
+  L.teaser=b('Next up: plant cells, with their cell wall, chloroplasts and a giant vacuole.','अगला: पादप कोशिकाएँ, उनकी कोशिका भित्ति, हरितलवक और विशाल रिक्तिका के साथ।');
+  L.quizWow=b('Plant cells have all of these parts, plus three more: a stiff cell wall, green chloroplasts that make food from sunlight, and one huge water-filled vacuole. That is Lesson 2.','पादप कोशिकाओं में ये सारे हिस्से होते हैं, और तीन और: एक मज़बूत कोशिका भित्ति, धूप से भोजन बनाने वाले हरे हरितलवक, और पानी से भरी एक विशाल रिक्तिका। यही पाठ 2 है।');
+})(L1);
+
+/* =======================================================================
+   LESSON 2 · PLANT CELL
+   ======================================================================= */
+const L2=makeLesson({id:'lesson-2',num:2,unit:2,icon:'leaf',
+  title:b('The plant cell','पादप कोशिका'),kind:b('Plant cell','पादप कोशिका'),
+  desc:b('Walls, chloroplasts and a giant water tank','भित्ति, हरितलवक और विशाल पानी की टंकी'),
+  overview:view(O,72,20,46),
+  intro:{eb:b('Lesson 2 · The plant cell','पाठ 2 · पादप कोशिका'),h:b('The Green City','हरा नगर'),
+    p:b('A plant cell has everything an animal cell has, plus three superpowers: a strong wall, solar-powered kitchens and a giant water tank. Let\'s build one, right inside a leaf.',
+        'पादप कोशिका में वह सब है जो जंतु कोशिका में है, और साथ में तीन महाशक्तियाँ: एक मज़बूत दीवार, सूरज से चलने वाली रसोई और एक विशाल पानी की टंकी। चलिए, एक पत्ती के अंदर एक कोशिका बनाते हैं।'),
+    meta:b('6 chapters · 10 steps · quiz<br>Matches NCERT Class 9 · The Fundamental Unit of Life','6 अध्याय · 10 चरण · क्विज़<br>NCERT कक्षा 9 · जीवन की मौलिक इकाई')},
+  mapTitle:b('Build a plant cell in 6 chapters','6 अध्यायों में पादप कोशिका बनाएँ'),mapSub:b('Three superpowers, one leaf','तीन महाशक्तियाँ, एक पत्ती'),
+  SOFT:{vacuole:3,cytoplasm:2,membrane:1},BACKDROP:{wall:1,neighbours:1},
+  ALIAS:{plasmo:'wall',chloroHero:'chloro'},
+  quizKeys:['wall','neighbours','plasmo','membrane','cytoplasm','vacuole','chloro','chloroHero','nucleus','mito','golgi','er']
+});
+(function buildL2(L){
+  const W=12,H=7,D=7,t=.55;
+  const MA=W-t-.08,MB=H-t-.08,MC=D-t-.08,MP=.22;
+  const VA=9.6,VB=4.7,VC=4.9,VP=.5;
+  L.NAMES={wall:b('Cell wall','कोशिका भित्ति'),neighbours:b('Neighbouring cell','पड़ोसी कोशिका'),plasmo:b('Plasmodesmata','प्लाज़्मोडेस्मेटा'),membrane:b('Cell membrane','कोशिका झिल्ली'),
+    cytoplasm:b('Cytoplasm','कोशिका द्रव्य'),vacuole:b('Central vacuole','केंद्रीय रिक्तिका'),chloro:b('Chloroplast','हरितलवक'),chloroHero:b('Chloroplast','हरितलवक'),
+    nucleus:b('Nucleus','केन्द्रक'),mito:b('Mitochondrion','माइटोकॉन्ड्रिया'),golgi:b('Golgi apparatus','गॉल्जी उपकरण'),er:b('Endoplasmic reticulum','अंतर्द्रव्यी जालिका (ER)')};
+  L.JOBS={wall:b('the fort wall','किले की दीवार'),neighbours:b('the next house','अगला घर'),plasmo:b('tunnels to the neighbours','पड़ोस तक सुरंगें'),membrane:b('the inner fence','भीतरी बाड़'),
+    cytoplasm:b('the city ground','शहर की ज़मीन'),vacuole:b('the water tank','पानी की टंकी'),chloro:b('a solar kitchen','सौर रसोई'),chloroHero:b('a solar kitchen','सौर रसोई'),
+    nucleus:b('city hall','नगर भवन'),mito:b('a power plant','बिजलीघर'),golgi:b('the post office','डाकघर'),er:b('the factory floor','कारखाने का फ़र्श')};
+
+  /* cell wall */
+  const wallG=new THREE.Group();const wm=mat(0xffffff,{map:celTex,roughness:.75,glow:0x8bc34a});
+  const box=(sx,sy,sz,x,y,z,m)=>{const me=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),m||wm);me.position.set(x,y,z);wallG.add(me);return me};
+  box(2*W,2*H,t,0,0,-D+t/2);box(t,2*H,D,-W+t/2,0,-D/2);box(t,2*H,D,W-t/2,0,-D/2);box(2*W,t,D,0,H-t/2,-D/2);box(2*W,t,D,0,-H+t/2,-D/2);
+  const lam=mat(0x6f8f3a,{roughness:.6,glow:0x8bc34a});
+  box(2*W,.09,.04,0,H,.01,lam);box(2*W,.09,.04,0,-H,.01,lam);box(.09,2*H,.04,W,0,.01,lam);box(.09,2*H,.04,-W,0,.01,lam);
+  entry(L,'wall',wallG,null,{dur:1.2});
+  /* neighbours */
+  const nbG=new THREE.Group();
+  {const gm=softMat(0x9ccc65,.08);const lm=new THREE.LineBasicMaterial({color:0x7cb342,transparent:true,opacity:.5});const dm=softMat(0x43a047,.22);
+   [[-2*W,0],[2*W,0],[-W,2*H],[W,2*H],[-W,-2*H],[W,-2*H]].forEach(o=>{const g=new THREE.Group();const bx=new THREE.BoxGeometry(2*W-.2,2*H-.2,D-.1);
+     g.add(new THREE.Mesh(bx,gm));const e=new THREE.LineSegments(new THREE.EdgesGeometry(bx),lm);g.add(e);
+     for(let i=0;i<9;i++){const d=new THREE.Mesh(new THREE.SphereGeometry(.55,12,8),dm);d.scale.set(1.3,.8,.5);d.position.set(rr(-W+2,W-2),rr(-H+1.5,H-1.5),-D/2+rr(-2.5,-1));d.userData.nopick=true;g.add(d)}
+     g.position.set(o[0],o[1],-D/2);nbG.add(g)})}
+  entry(L,'neighbours',nbG,nbG.children,{stag:.08,dur:.9});
+  /* plasmodesmata */
+  const pdG=new THREE.Group();
+  {const pm=mat(0x2e6b2a,{roughness:.5});const pg=new THREE.CylinderGeometry(.11,.11,t+.4,10);
+   for(let i=0;i<30;i++){const side=i%4;const z=i===0?-2.2:(i<5?-.15:rr(-D+1,-.6));const me=new THREE.Mesh(pg,pm);
+     if(side<2){me.position.set(side?W-t/2:-W+t/2,i===0?1.5:rr(-H+1.2,H-1.2),z);me.rotation.z=Math.PI/2}else{me.position.set(rr(-W+1.5,W-1.5),side===2?H-t/2:-H+t/2,z)}pdG.add(me)}}
+  entry(L,'plasmo',pdG,pdG.children,{stag:.02,dur:.6});
+  /* protoplast: everything inside the membrane, so it can shrink in salty water */
+  const proto=new THREE.Group();L.root.add(proto);
+  const memG=new THREE.Group();
+  {const mm=softMat(0xf08fb0,.3,{roughness:.5});memG.add(new THREE.Mesh(superHalf(MA,MB,MC,MP),mm));
+   const ring=new THREE.Mesh(new THREE.TubeGeometry(superRing(MA,MB,MP,0),260,.09,8,true),mat(0xee86a8,{roughness:.45}));memG.add(ring)}
+  entry(L,'membrane',memG,null,{dur:1},proto);
+  const cytG=new THREE.Group();let cytPts;const cytBase=[];
+  {const d=new THREE.Mesh(superDisc(MA-.05,MB-.05,MP),softMat(0xd8f0b0,.22));d.position.z=-.01;cytG.add(d);
+   const N=520,pos=new Float32Array(N*3);
+   for(let i=0;i<N;i++){let p;do{p=new V(rr(-MA,MA),rr(-MB,MB),rr(-MC,0))}while(!insideSuper(p,MA-.3,MB-.3,MC-.3,MP)||insideSuper(p,VA+.2,VB+.2,VC+.2,VP));cytBase.push({p,ph:rr(0,TAU),sp:rr(.4,1.1)});pos.set([p.x,p.y,p.z],i*3)}
+   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+   cytPts=new THREE.Points(g,new THREE.PointsMaterial({size:.2,map:dotTex,color:0x7aa94a,transparent:true,depthWrite:false,alphaTest:.05,opacity:.8}));cytG.add(cytPts)}
+  entry(L,'cytoplasm',cytG,null,{dur:1},proto);
+  /* vacuole */
+  const vacG=new THREE.Group();
+  {vacG.add(new THREE.Mesh(superHalf(VA,VB,VC,VP),softMat(0x8fd3f4,.3,{roughness:.15})));
+   const d=new THREE.Mesh(superDisc(VA,VB,VP),softMat(0x8fd3f4,.2));d.position.z=.01;vacG.add(d);
+   vacG.add(new THREE.Mesh(new THREE.TubeGeometry(superRing(VA,VB,VP,.01),220,.07,8,true),mat(0x3d9be0,{roughness:.4})))}
+  entry(L,'vacuole',vacG,null,{dur:1.2},proto);
+  /* nucleus (pushed to a corner) */
+  const NP=new V(-9,3.6,-4.2);
+  const nucG=new THREE.Group();nucG.position.copy(NP);
+  {nucG.add(new THREE.Mesh(new THREE.SphereGeometry(1.6,48,32),mat(0x8a6ee3,{roughness:.42})));
+   const pg=new THREE.TorusGeometry(.12,.045,8,16),pm=mat(0x4b2fa8);for(let i=0;i<40;i++){const n=sph(rr(0,360),rr(-75,75),1);const tt=new THREE.Mesh(pg,pm);tt.position.copy(n.clone().multiplyScalar(1.61));tt.lookAt(n.clone().multiplyScalar(3));nucG.add(tt)}}
+  entry(L,'nucleus',nucG,null,{dur:.9},proto);
+  /* chloroplasts: some on the back wall, some streaming round the vacuole */
+  const chlG=new THREE.Group();const chlGeo=deform(new THREE.SphereGeometry(1,32,20),v=>{v.x*=1.15;v.y*=.8;v.z*=.42});const chlM=mat(0xffffff,{map:chlTex,roughness:.5,glow:0x66bb6a});
+  const statics=[],streamers=[];
+  const SA=10.55,SB=5.55,SZ=-2.2,SP=.3;
+  const pathPt=(s,out)=>{const a=s*TAU;return (out||new V()).set(SA*spow(Math.cos(a),SP),SB*spow(Math.sin(a),SP),SZ)};
+  {let tries=0;const forced=new V(.25,.5,-.8);
+   while(statics.length<28&&tries<3000){tries++;const dir=statics.length===0?forced:new V(rr(-1,1),rr(-1,1),rr(-1.6,-.6));const sp=superPoint(MA,MB,MC,MP,dir);
+     const p=sp.p.clone().addScaledVector(sp.n,-.7);if(p.z>-1.2)continue;if(new V(p.x-NP.x,p.y-NP.y,0).length()<2.6)continue;if(statics.some(q=>q.distanceTo(p)<2.1))continue;
+     const g=new THREE.Group();g.add(new THREE.Mesh(chlGeo,chlM));g.position.copy(p);g.lookAt(p.clone().add(sp.n));g.rotateZ(rr(0,TAU));chlG.add(g);statics.push(p)}
+   for(let i=0;i<14;i++){const g=new THREE.Group();g.add(new THREE.Mesh(chlGeo,chlM));g.userData.s=i/14;chlG.add(g);streamers.push(g);pathPt(i/14,g.position)}}
+  entry(L,'chloro',chlG,chlG.children,{stag:.03,dur:.8},proto);
+  /* chloroplast cut open */
+  const HP=new V(4.5,-5.45,-.5);const heroC=new THREE.Group();heroC.position.copy(HP);
+  {const half=new THREE.SphereGeometry(1,56,36,Math.PI,Math.PI);
+   const o=new THREE.Mesh(half,mat(0x4fae45,{roughness:.45}));o.scale.set(2.1,.62,.95);
+   const ob=new THREE.Mesh(half,mat(0xdff2c8,{side:THREE.BackSide,roughness:.8,glow:0x66bb6a}));ob.scale.set(2.09,.61,.94);
+   const ib=new THREE.Mesh(half,mat(0xcbe9a8,{side:THREE.BackSide,roughness:.8,glow:0x66bb6a}));ib.scale.set(1.95,.52,.86);heroC.add(o,ob,ib);
+   const coin=new THREE.CylinderGeometry(.27,.27,.065,24),cm1=mat(0x2e8b3a,{roughness:.4}),cm2=mat(0x3fa34a,{roughness:.4});
+   const lamM=mat(0x5cb85c,{roughness:.5});
+   [-1.35,-.68,0,.68,1.35].forEach((x,k)=>{const prof=Math.sqrt(Math.max(0,1-(x/1.95)**2));const n=Math.max(3,Math.round(6*prof));
+     for(let i=0;i<n;i++){const c=new THREE.Mesh(coin,i%2?cm2:cm1);c.position.set(x,(i-(n-1)/2)*.1,-.42);heroC.add(c)}
+     if(k<4){const l=new THREE.Mesh(new THREE.BoxGeometry(.42,.02,.22),lamM);l.position.set(x+.34,(k%2?.08:-.08),-.42);l.rotation.z=k%2?-.18:.18;heroC.add(l)}});
+   const starch=new THREE.Mesh(new THREE.SphereGeometry(.16,16,12),mat(0xf6f1df));starch.scale.set(1.5,1,1);starch.position.set(1.0,-.2,-.6);heroC.add(starch);
+   const dna=new THREE.Mesh(new THREE.TorusGeometry(.1,.025,6,18),mat(0xc8458f));dna.position.set(-.35,.18,-.6);heroC.add(dna);
+   const ell=(rx,ry)=>{const pts=[];for(let i=0;i<=72;i++){const a=i/72*TAU;pts.push(new V(rx*Math.cos(a),ry*Math.sin(a),0))}return new THREE.CatmullRomCurve3(pts,true)};
+   const rim=mat(0x8fd07f);heroC.add(new THREE.Mesh(new THREE.TubeGeometry(ell(2.1,.62),120,.04,8,true),rim));heroC.add(new THREE.Mesh(new THREE.TubeGeometry(ell(1.95,.52),120,.03,8,true),rim))}
+  entry(L,'chloroHero',heroC,null,{dur:.9},proto);
+  /* mitochondria, golgi, ER */
+  const mitoG=new THREE.Group();
+  {const m=mat(0xffffff,{map:mitoTex,roughness:.45,glow:0xff6a40});
+   [[10.2,-1.8,-4.6],[-10.2,-.6,-4.8],[1.5,-5.5,-4.4],[6.2,5.4,-4.4],[-2,5.5,-4.6],[9.5,3.8,-4.8]].forEach(q=>{const g=new THREE.Group();g.add(new THREE.Mesh(mitoGeo,m));g.position.set(q[0],q[1],q[2]);g.rotation.set(rr(0,TAU),rr(0,TAU),rr(0,TAU));g.scale.setScalar(.8);mitoG.add(g)})}
+  entry(L,'mito',mitoG,mitoG.children,{stag:.08,dur:.8},proto);
+  const golG=makeGolgi();golG.position.set(-5.6,5.25,-4.3);golG.scale.setScalar(.5);
+  entry(L,'golgi',golG,null,{dur:.9},proto);
+  const erG=new THREE.Group();
+  {const m=mat(0x72b3ea,{roughness:.45});const inside=p=>p.distanceTo(NP)>1.75&&p.distanceTo(NP)<3.4&&!insideSuper(p,VA+.3,VB+.3,VC+.3,VP)&&insideSuper(p,MA-.4,MB-.4,MC-.4,MP)&&p.z<-1;
+   const im=new THREE.InstancedMesh(new THREE.SphereGeometry(.07,6,5),mat(0x26318a,{glow:0x5a6cff}),160);const M=new THREE.Matrix4();let n=0;
+   for(let i=0;i<7;i++){let s;let k=0;do{s=NP.clone().add(sph(rr(0,360),rr(-60,60),2.1))}while(!inside(s)&&k++<200);if(!inside(s))continue;
+     const c=walk(s,12,.38,inside);if(c.points.length<3)continue;erG.add(new THREE.Mesh(new THREE.TubeGeometry(c,50,.12,7),m));
+     for(let j=0;j<22&&n<160;j++){const p=c.getPoint(rnd()).add(new V(rr(-.14,.14),rr(-.14,.14),rr(-.14,.14)));M.makeTranslation(p.x,p.y,p.z);im.setMatrixAt(n++,M)}}
+   im.count=n;erG.add(im)}
+  entry(L,'er',erG,null,{dur:1},proto);
+  const shadow=new THREE.Mesh(new THREE.PlaneGeometry(56,34),new THREE.MeshBasicMaterial({map:shadowTex,transparent:true,depthWrite:false}));shadow.rotation.x=-Math.PI/2;shadow.position.set(0,-H-1.2,-D/2);L.root.add(shadow);
+
+  /* effects: sunlight + sugar, water flow, streaming */
+  const M4=new THREE.Matrix4(),Q=new THREE.Quaternion(),S=new V(),P=new V();
+  const sunG=new THREE.Group();sunG.visible=false;L.root.add(sunG);const rays=[];
+  {const sunDir=new V(-.35,.8,.5).normalize();const rm=new THREE.MeshBasicMaterial({color:0xffd23f,transparent:true,opacity:.4,depthWrite:false});
+   statics.slice(0,7).forEach((p,i)=>{const len=20;const r=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,len,6,1,true),rm.clone());
+     r.position.copy(p).addScaledVector(sunDir,len/2);r.quaternion.setFromUnitVectors(new V(0,1,0),sunDir);r.userData.ph=i;sunG.add(r);rays.push(r)})}
+  const sugar=new THREE.InstancedMesh(new THREE.SphereGeometry(.12,8,6),new THREE.MeshStandardMaterial({color:0xffb347,emissive:0xff8c00,emissiveIntensity:.5,roughness:.3}),70);
+  const sugD=[];for(let i=0;i<70;i++)sugD.push({c:i%10,d:new V(rr(-1,1),rr(-1,1),rr(.2,1)).normalize(),ph:rnd()});sunG.add(sugar);
+  const water=new THREE.InstancedMesh(new THREE.SphereGeometry(.14,8,6),new THREE.MeshStandardMaterial({color:0x3ea0e8,roughness:.3}),36);water.visible=false;L.root.add(water);
+  const wD=[];for(let i=0;i<36;i++){const a=rr(0,TAU);wD.push({dir:new V(Math.cos(a),Math.sin(a)*.8,rr(-.9,-.15)).normalize(),ph:rnd()})}
+  const WS={w:1,target:1};L.water=WS;
+  let lastFlow=0;
+  L.onStep=(s)=>{WS.w=WS.target=1;$('#waterR').value=100;proto.scale.setScalar(1);vacG.userData.fx=1};
+  L.dyn=(kind)=>{
+    if(kind==='water'){const w=WS.w;const n=w>.75?b('Turgid','स्फीत (turgid)'):w<.35?b('Plasmolysed','जीवद्रव्यकुंचित'):b('Flaccid','श्लथ (flaccid)');
+      const s2=w>.75?b('pressed against the wall','भित्ति से दबी हुई'):w<.35?b('pulled away from the wall','भित्ति से दूर सिकुड़ी'):b('soft, not firm','ढीली, कड़क नहीं');
+      const sc=proto.scale.x;return {n,s:s2,en:n,at:new V(8.4*sc,6.15*sc,0)}}
+    if(kind==='stream'){const p=new V();streamers[0].getWorldPosition(p);return {n:b('Streaming chloroplast','बहता हरितलवक'),s:b('riding the current','धारा पर सवार'),en:b('Chloroplast','Chloroplast'),at:p}}};
+  L.fx=(s,dt,tt)=>{const fx=s&&s.fx;
+    if(cytG.visible){const a=cytPts.geometry.attributes.position;const k=now*(RM?.2:1);
+      for(let i=0;i<cytBase.length;i++){const q=cytBase[i];a.setXYZ(i,q.p.x+.12*Math.sin(k*q.sp+q.ph),q.p.y+.12*Math.cos(k*q.sp*1.3+q.ph),q.p.z+.1*Math.sin(k*q.sp*.8+q.ph*2))}a.needsUpdate=true}
+    // cytoplasmic streaming
+    if(chlG.visible){const sp=(fx==='stream'?.03:.012)*(RM?.3:1);streamers.forEach(g=>{g.userData.s=(g.userData.s+dt*sp)%1;pathPt(g.userData.s,g.position);
+      const a=g.userData.s*TAU;const n=new V(Math.sign(Math.cos(a))*Math.pow(Math.abs(Math.cos(a)),2-SP)/SA,Math.sign(Math.sin(a))*Math.pow(Math.abs(Math.sin(a)),2-SP)/SB,0).normalize();
+      g.lookAt(P.copy(g.position).add(n).applyMatrix4(proto.matrixWorld));})}
+    // sunlight & sugar
+    sunG.visible=fx==='sun'&&tt>1.0;
+    if(sunG.visible){rays.forEach(r=>{r.material.opacity=.22+.2*(.5+.5*Math.sin(now*2.2+r.userData.ph))});
+      for(let i=0;i<70;i++){const d=sugD[i];const u=(now*.4+d.ph)%1;const c=statics[d.c];P.copy(c).addScaledVector(d.d,.6+u*2.6);S.setScalar(Math.max(.001,Math.sin(u*Math.PI)));M4.compose(P,Q.identity(),S);sugar.setMatrixAt(i,M4)}sugar.instanceMatrix.needsUpdate=true}
+    // water & plasmolysis
+    const k=1-Math.exp(-dt*1.1);const before=WS.w;WS.w+=(WS.target-WS.w)*k;const flow=(WS.w-before)/Math.max(dt,1e-3);lastFlow+=(flow-lastFlow)*.2;
+    const e=WS.w*WS.w*(3-2*WS.w);proto.scale.setScalar(.6+.4*e);vacG.userData.fx=.78+.22*e;
+    water.visible=fx==='water'&&Math.abs(lastFlow)>.01;
+    if(water.visible){const sc=proto.scale.x;const amp=Math.min(1,Math.abs(lastFlow)*5);
+      for(let i=0;i<36;i++){const d=wD[i];let u=(now*.55+d.ph)%1;if(lastFlow>0)u=1-u;
+        const pin=superPoint(VA*sc*.9,VB*sc*.9,VC*sc*.9,VP,d.dir).p,pout=superPoint(W+2.2,H+2.2,D,.3,d.dir).p;pout.z=Math.min(pout.z,-.3);
+        P.lerpVectors(pin,pout,u);S.setScalar(Math.max(.001,amp*Math.sin(u*Math.PI)));M4.compose(P,Q.identity(),S);water.setMatrixAt(i,M4)}water.instanceMatrix.needsUpdate=true}
+  };
+
+  L.CH=[
+ {name:b('Cell wall','कोशिका भित्ति'),city:b('The fort wall','किले की दीवार'),icon:'wall',steps:[
+  {t:b('Build the cell wall','कोशिका भित्ति बनाएँ'),show:['wall'],focus:'wall',cam:view(O,68,20,44),label:{k:'wall',at:()=>new V(5,H-t/2,0)},
+   x:b('Plant cells start with something animal cells don\'t have: a stiff cell wall outside the membrane. It is made of cellulose, the same stuff as paper and cotton.','पादप कोशिका की शुरुआत उस चीज़ से होती है जो जंतु कोशिका में नहीं होती: झिल्ली के बाहर एक मज़बूत कोशिका भित्ति (cell wall)। यह सेलुलोज़ (cellulose) से बनी है, वही पदार्थ जिससे कागज़ और कपास बनते हैं।'),
+   why:b(['Cellulose fibres are laid down in criss-cross layers, like the sheets in plywood. That makes the wall strong but still slightly stretchy.','The wall gives the cell its box shape and holds the plant up. A tree can stand 100 metres tall without a single bone.'],
+     ['सेलुलोज़ के रेशे आड़ी-तिरछी परतों में बिछे होते हैं, जैसे प्लाईवुड की परतें। इससे भित्ति मज़बूत भी रहती है और थोड़ी लचीली भी।','भित्ति कोशिका को डिब्बे जैसा आकार देती है और पौधे को खड़ा रखती है। एक पेड़ बिना एक भी हड्डी के 100 मीटर ऊँचा खड़ा रह सकता है।']),
+   exam:b('The cell wall is freely permeable. The cell membrane is selectively permeable. Don\'t mix them up.','कोशिका भित्ति पूर्ण पारगम्य (freely permeable) होती है। कोशिका झिल्ली वरणात्मक पारगम्य (selectively permeable) होती है। दोनों को मत मिलाइए।'),
+   wow:b('In 1665 Robert Hooke looked at a thin slice of cork and named the little boxes he saw "cells". He was actually looking at the empty walls of dead plant cells.','1665 में रॉबर्ट हुक ने कॉर्क की एक पतली परत देखी और उसमें दिखे छोटे-छोटे खानों को "cells" नाम दिया। असल में वे मरी हुई पादप कोशिकाओं की खाली भित्तियाँ थीं।')},
+  {t:b('Meet the neighbours','पड़ोसियों से मिलें'),show:['neighbours','plasmo'],focus:'plasmo',cam:view(O,58,26,64),label:{k:'plasmo',at:()=>new V(-W+t+.08,1.5,-2.2)},
+   x:b('Plant cells never live alone. They sit side by side like bricks, glued together, and tiny tunnels called plasmodesmata pass through the walls to link them.','पादप कोशिकाएँ कभी अकेली नहीं रहतीं। ये ईंटों की तरह एक-दूसरे से सटी और चिपकी रहती हैं, और प्लाज़्मोडेस्मेटा (plasmodesmata) नाम की छोटी सुरंगें भित्तियों के आर-पार जाकर उन्हें जोड़ती हैं।'),
+   why:b(['The glue between two walls is a thin layer called the middle lamella. It is made of pectin, the same substance that helps jam set.','Water, sugars and messages flow from cell to cell through the plasmodesmata, so a whole leaf works as a team.'],
+     ['दो भित्तियों के बीच की गोंद एक पतली परत है जिसे मध्य पटलिका (middle lamella) कहते हैं। यह पेक्टिन (pectin) से बनी है, वही पदार्थ जो जैम को जमाने में मदद करता है।','पानी, शक्कर और संदेश प्लाज़्मोडेस्मेटा से होकर एक कोशिका से दूसरी में जाते हैं, ताकि पूरी पत्ती एक टीम की तरह काम करे।']),
+   wow:b('A single leaf is made of millions of cells, all linked through these tunnels.','एक अकेली पत्ती लाखों कोशिकाओं से बनी होती है, जो सब इन सुरंगों से जुड़ी हैं।')}
+ ]},
+ {name:b('Membrane & cytoplasm','झिल्ली और कोशिका द्रव्य'),city:b('The inner fence','भीतरी बाड़'),icon:'mem',steps:[
+  {t:b('Line it with a membrane','अंदर झिल्ली लगाएँ'),show:['membrane','cytoplasm'],focus:'membrane',cam:view(O,72,18,40),label:{k:'membrane',at:()=>new V(-4,MB,0)},
+   x:b('Just inside the wall sits a cell membrane, exactly like the one in Lesson 1. It hugs the wall from the inside and holds the cytoplasm.','भित्ति के ठीक अंदर एक कोशिका झिल्ली होती है, बिल्कुल पाठ 1 जैसी। यह अंदर से भित्ति से चिपकी रहती है और कोशिका द्रव्य को थामे रखती है।'),
+   why:b(['The wall is a tough outer box. The membrane is the real gatekeeper that decides what enters.','Everything inside the membrane, the cytoplasm plus all the organelles, is called the protoplast.'],
+     ['भित्ति एक मज़बूत बाहरी डिब्बा है। असली पहरेदार झिल्ली है जो तय करती है कि अंदर क्या जाएगा।','झिल्ली के अंदर की हर चीज़, यानी कोशिका द्रव्य और सारे अंगक, मिलकर जीवद्रव्यक (protoplast) कहलाते हैं।']),
+   wow:b('Notice how thin the layer of cytoplasm is. Something huge is about to take over the middle of this cell.','देखिए कोशिका द्रव्य की परत कितनी पतली है। इस कोशिका के बीच की जगह जल्द ही किसी बहुत बड़ी चीज़ से भरने वाली है।')}
+ ]},
+ {name:b('Vacuole','रिक्तिका'),city:b('The water tank','पानी की टंकी'),icon:'vac',steps:[
+  {t:b('Fill the central vacuole','केंद्रीय रिक्तिका भरें'),show:['vacuole'],focus:'vacuole',cam:view(O,74,18,38),label:{k:'vacuole',at:()=>new V(3,1,0)},
+   x:b('The big bubble in the middle is the central vacuole. It is a storage tank full of water, sugars, salts and waste, and it can fill up to 90% of the cell.','बीच का बड़ा बुलबुला केंद्रीय रिक्तिका (central vacuole) है। यह पानी, शक्कर, लवण और अपशिष्ट से भरी एक भंडार टंकी है, और कोशिका का 90% तक हिस्सा घेर सकती है।'),
+   why:b(['The vacuole has its own membrane, called the tonoplast.','Because the vacuole is so big, it pushes the cytoplasm, nucleus and chloroplasts into a thin layer against the wall, close to the light.'],
+     ['रिक्तिका की अपनी झिल्ली होती है जिसे टोनोप्लास्ट (tonoplast) कहते हैं।','रिक्तिका इतनी बड़ी है कि यह कोशिका द्रव्य, केन्द्रक और हरितलवकों को धकेलकर भित्ति के पास एक पतली परत में कर देती है, रोशनी के पास।']),
+   exam:b('Plant cells have one large central vacuole. Animal cells have small vacuoles, or none.','पादप कोशिका में एक बड़ी केंद्रीय रिक्तिका होती है। जंतु कोशिका में रिक्तिकाएँ छोटी होती हैं, या होती ही नहीं।'),
+   wow:b('The deep red of beetroot comes from pigment dissolved in the vacuoles of its cells.','चुकंदर का गहरा लाल रंग उसकी कोशिकाओं की रिक्तिकाओं में घुले रंजक से आता है।')},
+  {t:b('Water in, water out','पानी अंदर, पानी बाहर'),ctrl:'water',focus:'vacuole',fx:'water',dur:20,cam:view(O,80,16,40),label:{dyn:'water'},
+   x:b('Drag the slider. In fresh water, the vacuole swells and presses the cell against its wall. In salty water, water leaves, and the inside shrinks away from the wall.','स्लाइडर खिसकाइए। साफ़ पानी में रिक्तिका फूलती है और कोशिका को भित्ति से दबा देती है। नमकीन पानी में पानी बाहर निकलता है और अंदर का हिस्सा भित्ति से दूर सिकुड़ जाता है।'),
+   why:b(['Water moves by osmosis, from where there is more water to where there is less. Watch the blue dots.','A cell full of water is turgid, and that pressure keeps leaves and stems firm. A cell that loses water and pulls away from its wall is plasmolysed, and the plant wilts.'],
+     ['पानी परासरण (osmosis) से चलता है, जहाँ पानी ज़्यादा है वहाँ से जहाँ कम है वहाँ की ओर। नीले बिंदुओं को देखिए।','पानी से भरी कोशिका स्फीत (turgid) होती है, और यही दबाव पत्तियों और तनों को कड़क रखता है। जो कोशिका पानी खोकर भित्ति से दूर सिकुड़ जाए वह जीवद्रव्यकुंचित (plasmolysed) होती है, और पौधा मुरझा जाता है।']),
+   exam:b('Plasmolysis = the protoplast shrinking away from the cell wall when water leaves by osmosis. NCERT shows it with a Rhoeo leaf peel in salt solution.','जीवद्रव्यकुंचन (plasmolysis) = परासरण से पानी निकलने पर जीवद्रव्यक का कोशिका भित्ति से दूर सिकुड़ जाना। NCERT में इसे नमक के घोल में रखी रोईओ (Rhoeo) पत्ती की झिल्ली से दिखाया गया है।'),
+   wow:b('Put an animal cell in fresh water and it can swell until it bursts. A plant cell doesn\'t burst, because its wall pushes back.','जंतु कोशिका को साफ़ पानी में रखो तो वह फूलकर फट सकती है। पादप कोशिका नहीं फटती, क्योंकि उसकी भित्ति वापस धक्का देती है।')}
+ ]},
+ {name:b('Chloroplasts','हरितलवक'),city:b('Solar kitchens','सौर रसोई'),icon:'chl',steps:[
+  {t:b('Add the chloroplasts','हरितलवक जोड़ें'),show:['chloro'],focus:'chloro',fx:'sun',cam:view(O,70,24,38),label:{k:'chloro',at:()=>statics[0]},
+   x:b('Chloroplasts are green food factories. They catch sunlight and use it to turn carbon dioxide and water into sugar. This is photosynthesis.','हरितलवक (chloroplast) हरे रंग के भोजन के कारखाने हैं। ये सूरज की रोशनी पकड़कर कार्बन डाइऑक्साइड और पानी को शक्कर में बदलते हैं। इसे प्रकाश संश्लेषण (photosynthesis) कहते हैं।'),
+   why:b(['Carbon dioxide + water → glucose + oxygen, powered by sunlight and chlorophyll. The orange sparks are sugar being made.','Chlorophyll is the green pigment. It absorbs red and blue light and reflects green, which is why leaves look green.'],
+     ['कार्बन डाइऑक्साइड + पानी → ग्लूकोज़ + ऑक्सीजन, सूरज की रोशनी और क्लोरोफ़िल की मदद से। नारंगी चिंगारियाँ बनती हुई शक्कर हैं।','क्लोरोफ़िल (chlorophyll) हरा रंजक है। यह लाल और नीली रोशनी सोखता है और हरी लौटा देता है, इसीलिए पत्तियाँ हरी दिखती हैं।']),
+   exam:b('Chloroplasts are one kind of plastid. Chromoplasts give colour to flowers and fruits. Leucoplasts store starch, oil and protein.','हरितलवक एक तरह का लवक (plastid) है। वर्णीलवक (chromoplasts) फूलों और फलों को रंग देते हैं। अवर्णीलवक (leucoplasts) स्टार्च, तेल और प्रोटीन जमा करते हैं।'),
+   wow:b('Almost all the oxygen you breathe was released by photosynthesis in plants and tiny ocean algae.','आप जो ऑक्सीजन साँस में लेते हैं, उसका लगभग सारा हिस्सा पौधों और समुद्र के सूक्ष्म शैवालों के प्रकाश संश्लेषण से आया है।')},
+  {t:b('Look inside one','एक को अंदर से देखें'),show:['chloroHero'],focus:'chloroHero',cam:view(HP,84,22,7.5),label:{n:b('Grana','ग्रैना'),s:b('stacks of thylakoids','थाइलेकॉइड के ढेर'),en:b('Grana','Grana'),at:()=>HP.clone().add(new V(-.68,.25,-.3))},
+   x:b('Slice a chloroplast open. Inside are stacks of flat green discs, piled up like coins. Each stack is a granum, and each disc is a thylakoid.','एक हरितलवक को काटकर खोलिए। अंदर सिक्कों की तरह जमी चपटी हरी चकतियों के ढेर हैं। हर ढेर एक ग्रैनम (granum) है, और हर चकती एक थाइलेकॉइड (thylakoid)।'),
+   why:b(['Chlorophyll sits in the thylakoid membranes. Stacking them packs in more light-catching surface.','The fluid around the stacks is the stroma. That is where carbon dioxide is actually built into sugar. The white grain is stored starch.'],
+     ['क्लोरोफ़िल थाइलेकॉइड झिल्लियों में होता है। इन्हें ढेर में जमाने से रोशनी पकड़ने की ज़्यादा सतह मिलती है।','ढेरों के चारों ओर का तरल पीठिका (stroma) है। असल में यहीं कार्बन डाइऑक्साइड से शक्कर बनती है। सफ़ेद दाना जमा किया हुआ स्टार्च है।']),
+   wow:b('Like mitochondria, chloroplasts have their own DNA (the pink loop). Scientists think both were once free-living bacteria that moved into bigger cells long ago.','माइटोकॉन्ड्रिया की तरह हरितलवक का भी अपना DNA होता है (गुलाबी छल्ला)। वैज्ञानिक मानते हैं कि दोनों कभी आज़ाद रहने वाले बैक्टीरिया थे जो बहुत पहले बड़ी कोशिकाओं में आकर बस गए।')},
+  {t:b('Watch them stream','इन्हें बहते देखें'),focus:'chloro',fx:'stream',cam:view(O,76,14,34),label:{dyn:'stream'},
+   x:b('The cytoplasm in a plant cell flows around the vacuole like a slow river, carrying the chloroplasts with it. This is called cytoplasmic streaming.','पादप कोशिका का कोशिका द्रव्य रिक्तिका के चारों ओर धीमी नदी की तरह बहता है और हरितलवकों को साथ ले जाता है। इसे कोशिका द्रव्य प्रवाह (cytoplasmic streaming) कहते हैं।'),
+   why:b(['Streaming moves food, chloroplasts and other parts around a big cell much faster than they could drift on their own.','You can see it yourself under a school microscope in a leaf of Hydrilla, a common pond plant.'],
+     ['यह प्रवाह भोजन, हरितलवक और दूसरे हिस्सों को बड़ी कोशिका में उससे कहीं तेज़ी से पहुँचाता है जितना वे खुद तैरकर पहुँचते।','आप इसे स्कूल के माइक्रोस्कोप में हाइड्रिला (Hydrilla) की पत्ती में खुद देख सकते हैं, जो तालाब का एक आम पौधा है।']),
+   wow:b('In the giant cells of the alga Chara, the cytoplasm streams at up to 100 micrometres per second. That would cross a cell like this one in about half a second.','शैवाल कारा (Chara) की विशाल कोशिकाओं में कोशिका द्रव्य 100 माइक्रोमीटर प्रति सेकंड तक की रफ़्तार से बहता है। इस रफ़्तार से यह इस जैसी कोशिका को लगभग आधे सेकंड में पार कर ले।')}
+ ]},
+ {name:b('Familiar parts','जाने-पहचाने हिस्से'),city:b('The same city services','वही नगर सेवाएँ'),icon:'nuc',steps:[
+  {t:b('The rest of the city','शहर का बाकी हिस्सा'),show:['nucleus','mito','golgi','er'],focus:'nucleus',cam:view(NP,62,18,16),label:{k:'nucleus',s:b('pushed to the side','एक तरफ़ धकेला गया'),at:()=>NP.clone().add(new V(.6,1.2,.6))},
+   x:b('Plant cells also have a nucleus, mitochondria, a Golgi apparatus, ER and ribosomes. The vacuole pushes the nucleus off to one side.','पादप कोशिका में भी केन्द्रक, माइटोकॉन्ड्रिया, गॉल्जी उपकरण, ER और राइबोसोम होते हैं। रिक्तिका केन्द्रक को एक तरफ़ धकेल देती है।'),
+   why:b(['Plants make their own food in chloroplasts, but they still need mitochondria to turn that food into ATP.','So plants respire too. They respire all day and all night, and photosynthesise only when there is light.'],
+     ['पौधे हरितलवकों में अपना भोजन खुद बनाते हैं, लेकिन उस भोजन को ATP में बदलने के लिए उन्हें भी माइटोकॉन्ड्रिया चाहिए।','यानी पौधे भी श्वसन करते हैं। वे दिन-रात श्वसन करते हैं, और प्रकाश संश्लेषण सिर्फ़ रोशनी होने पर करते हैं।']),
+   exam:b('Plant cells have BOTH chloroplasts and mitochondria. A common wrong answer says plants have no mitochondria.','पादप कोशिका में हरितलवक और माइटोकॉन्ड्रिया दोनों होते हैं। एक आम गलत उत्तर है कि पौधों में माइटोकॉन्ड्रिया नहीं होते।'),
+   wow:b('Most plant cells have no centrioles, which animal cells use when they divide. Plants divide perfectly well without them.','ज़्यादातर पादप कोशिकाओं में तारककेंद्र (centrioles) नहीं होते, जिनका इस्तेमाल जंतु कोशिकाएँ विभाजन में करती हैं। पौधे इनके बिना भी अच्छी तरह विभाजन कर लेते हैं।')}
+ ]},
+ {name:b('Plant vs animal','पादप बनाम जंतु'),city:b('Spot the difference','अंतर पहचानें'),icon:'cmp',steps:[
+  {t:b('Three plant superpowers','पौधों की तीन महाशक्तियाँ'),focus:['wall','chloro','vacuole'],cam:view(O,70,22,42),
+   x:b('The glowing parts are what make this a plant cell: the cell wall, the chloroplasts and the large central vacuole. Animal cells don\'t have them.','चमकते हिस्से ही इसे पादप कोशिका बनाते हैं: कोशिका भित्ति, हरितलवक और बड़ी केंद्रीय रिक्तिका। जंतु कोशिकाओं में ये नहीं होते।'),
+   table:[[b('Cell wall','कोशिका भित्ति'),b('Yes, cellulose','हाँ, सेलुलोज़'),b('No','नहीं')],[b('Shape','आकार'),b('Fixed, box-like','स्थिर, डिब्बे जैसा'),b('Rounded, can change','गोल, बदल सकता है')],
+     [b('Vacuole','रिक्तिका'),b('One large, central','एक बड़ी, केंद्र में'),b('Small or none','छोटी या नहीं')],[b('Chloroplasts','हरितलवक'),b('Yes','हाँ'),b('No','नहीं')],
+     [b('Centrioles','तारककेंद्र'),b('Usually absent','आमतौर पर नहीं'),b('Present','होते हैं')],[b('Lysosomes','लाइसोसोम'),b('Rare','कम'),b('Common','आम')]],
+   why:b([],[]),
+   exam:b('This comparison table is a favourite exam question. Learn the first four rows.','यह तुलना तालिका परीक्षा का पसंदीदा प्रश्न है। पहली चार पंक्तियाँ याद कर लीजिए।'),
+   wow:b('Fungi have cell walls too, but theirs are made of chitin, the same material as insect shells.','कवक (fungi) में भी भित्ति होती है, लेकिन वह काइटिन (chitin) से बनी होती है, वही पदार्थ जिससे कीड़ों का कवच बनता है।')}
+ ]},
+ {name:b('Test yourself','खुद को परखें'),city:b('Become a city guide','शहर के गाइड बनें'),icon:'quiz',quiz:true,steps:[{t:b('Tap the right part','सही हिस्से पर टैप करें'),quiz:true,cam:view(O,72,22,42)}]}
+  ];
+  L.QUIZ=[
+   {q:b('Tap the stiff wall made of cellulose.','सेलुलोज़ से बनी मज़बूत भित्ति पर टैप करें।'),a:'wall'},
+   {q:b('Tap the giant water tank.','विशाल पानी की टंकी पर टैप करें।'),a:'vacuole'},
+   {q:b('Tap a solar kitchen that makes sugar from sunlight.','धूप से शक्कर बनाने वाली सौर रसोई पर टैप करें।'),a:'chloro'},
+   {q:b('Tap the control room, pushed off to one side.','एक तरफ़ धकेले गए कंट्रोल रूम पर टैप करें।'),a:'nucleus'},
+   {q:b('Tap a power plant. Yes, plants have them too!','एक बिजलीघर पर टैप करें। हाँ, पौधों में भी होते हैं!'),a:'mito'},
+   {q:b('Tap the post office that packs proteins.','प्रोटीन पैक करने वाले डाकघर पर टैप करें।'),a:'golgi'}];
+  L.cheat=['wall','plasmo','membrane','vacuole','chloro','nucleus','mito','golgi','er'];
+  L.teaser=b('You have built both kinds of cell. More lessons are on the way.','आपने दोनों तरह की कोशिकाएँ बना लीं। और पाठ जल्द आ रहे हैं।');
+  L.quizWow=b('Onion peel, Hydrilla leaves and the inside of your cheek are the easiest real cells to see under a school microscope. Try them and compare with what you built here.','प्याज़ की झिल्ली, हाइड्रिला की पत्ती और आपके गाल के अंदर की परत, स्कूल के माइक्रोस्कोप में देखने के लिए सबसे आसान असली कोशिकाएँ हैं। इन्हें देखिए और यहाँ बनाई कोशिकाओं से मिलाइए।');
+})(L2);
+
+const LESSONS=[L1,L2];
+LESSONS.forEach(L=>{L.STEPS=[];L.CH.forEach((c,ci)=>c.steps.forEach((s,si)=>{s.ch=ci;s.si=si;L.STEPS.push(s)}));L.QUIZ_STEP=L.STEPS.length-1;L.LESSON_STEPS=L.STEPS.length-1});
+let LS=L1;
+let now=0;
+
+function setTarget(k,on,instant){const e=LS.ENT[k];on=on?1:0;if(e.target===on&&!instant)return;e.target=on;e.t0=instant?-100:now+(on?.35:0)}
+
+/* ---------------- camera flights ---------------- */
+let fly=null;
+function camFor(c){const asp=camera.aspect||1.6;const k=asp<1.15?Math.pow(1.15/asp,.8):1;const d=c.d*k;const a=c.az*D2R,e=c.el*D2R,t=c.t;
+  return {tgt:t.clone(),pos:new V(t.x+d*Math.cos(e)*Math.cos(a),t.y+d*Math.sin(e),t.z+d*Math.cos(e)*Math.sin(a))}}
+function flyTo(c,instant){const to=camFor(c);
+  if(instant||RM){camera.position.copy(to.pos);controls.target.copy(to.tgt);fly=null;return}
+  const fromT=controls.target.clone(),offA=new THREE.Spherical().setFromVector3(camera.position.clone().sub(fromT)),offB=new THREE.Spherical().setFromVector3(to.pos.clone().sub(to.tgt));
+  let dth=offB.theta-offA.theta;if(dth>Math.PI)dth-=TAU;if(dth<-Math.PI)dth+=TAU;fly={t0:now,dur:1.7,fromT,toT:to.tgt,a:offA,b:offB,dth}}
+controls.addEventListener('start',()=>{fly=null;if(st.intro)controls.autoRotate=false});
+function updateFly(){if(!fly)return;const p=clamp((now-fly.t0)/fly.dur,0,1),e=easeIO(p);controls.target.lerpVectors(fly.fromT,fly.toT,e);
+  camera.position.setFromSpherical(new THREE.Spherical(fly.a.radius+(fly.b.radius-fly.a.radius)*e,fly.a.phi+(fly.b.phi-fly.a.phi)*e,fly.a.theta+fly.dth*e)).add(controls.target);if(p>=1)fly=null}
+
+/* ---------------- navigation ---------------- */
+function goStep(i,o){o=o||{};const S=LS.STEPS;i=clamp(i,0,S.length-1);
+  if(!st.intro&&i>st.step)for(let k=st.step;k<i;k++)LS.done.add(k);
+  st.intro=false;$('#intro').hidden=true;controls.autoRotate=false;closeMenu();
+  st.step=i;st.stepT0=now;st.temp=null;const s=S[i];
+  const vis=new Set();
+  if(s.quiz)LS.quizKeys.forEach(k=>vis.add(k));
+  else{for(let k=0;k<=i;k++)(S[k].show||[]).forEach(x=>vis.add(x));(s.temp||[]).forEach(x=>vis.add(x))}
+  for(const k in LS.ENT)setTarget(k,vis.has(k),o.instant);
+  LS.onStep(s);flyTo(s.cam,o.instant);
+  $('#water').hidden=s.ctrl!=='water';$('#scale').hidden=s.ctrl==='water';
+  if(s.quiz)startQuiz();else stopQuiz();
+  if(s.quiz&&st.playing)setPlaying(false);
+  render()}
+function showIntro(instant){st.intro=true;stopQuiz();$('#intro').hidden=false;$('#water').hidden=true;$('#scale').hidden=false;
+  for(const k in LS.ENT)setTarget(k,LS.quizKeys.indexOf(k)>=0,instant);LS.onStep(null);
+  flyTo(LS.overview,instant);controls.autoRotate=!RM;render()}
+function setLesson(L,o){o=o||{};if(LS!==L){LS.root.visible=false;LS=L}LS.root.visible=true;setPlaying(false);
+  try{if(location.hash!=='#'+L.id)history.replaceState(null,'','#'+L.id)}catch(e){}
+  if(o.quiz){goStep(L.QUIZ_STEP)}else showIntro(o.instant)}
+
+/* ---------------- rendering UI ---------------- */
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function enLine(x){return HI()&&x?`<span class="en" lang="en">${esc(EN(x))}</span>`:''}
+function render(){renderStatic();renderPanel();renderStrip();renderProgress();renderMenu()}
+function renderStatic(){
+  document.documentElement.lang=st.lang;
+  document.querySelectorAll('.lang button').forEach(bt=>bt.setAttribute('aria-pressed',bt.dataset.lang===st.lang?'true':'false'));
+  $('#brandName').textContent=T(UI.app);
+  $('#brandSub').textContent=`${T(UI.lab)} · ${T(UI.lesson)} ${LS.num} · ${T(LS.title)}`;
+  $('#lessonBtnTxt').textContent=`${T(UI.lesson)} ${LS.num} · ${T(LS.kind)}`;
+  $('#iEb').textContent=T(LS.intro.eb);$('#iH').textContent=T(LS.intro.h);$('#iP').textContent=T(LS.intro.p);$('#iMeta').innerHTML=T(LS.intro.meta);
+  $('#tStart').textContent=T(UI.start);$('#bSkip').textContent=T(UI.skip);
+  const other=LESSONS.find(l=>l!==LS);$('#bOther').textContent=fmt.goTo(other.num,T(other.title));
+  document.querySelectorAll('.tab').forEach(bt=>bt.textContent=T(UI.tabs[bt.dataset.tab]));
+  $('#hint').textContent=T(UI.hint);$('#wSalt').textContent=T(UI.salty);$('#wFresh').textContent=T(UI.fresh);
+  [['#bView',UI.reset],['#bRestart',UI.restart],['#bSpeed',UI.speed],['#bPrev',UI.prev],['#bNext',UI.next]].forEach(([s,x])=>{$(s).title=T(x);$(s).setAttribute('aria-label',T(x))});
+  const pl=st.playing?UI.pause:UI.play;$('#bPlay').title=T(pl);$('#bPlay').setAttribute('aria-label',T(pl));
+  canvas.setAttribute('aria-label',T(UI.canvas));
+  $('#bRetry').textContent=T(UI.retry);$('#bReview').textContent=T(UI.review);
+  lastTagHTML='';
+}
+function renderProgress(){const S=LS.STEPS,n=LS.LESSON_STEPS;const shown=st.intro?0:(st.step===LS.QUIZ_STEP?n:st.step+1);
+  $('#progNum').textContent=shown+'/'+n;$('#progName').textContent=st.intro?T(LS.title):T(LS.CH[S[st.step].ch].name);
+  $('#progBar').style.width=(shown/n*100)+'%';$('#bPrev').disabled=!st.intro&&st.step===0}
+function renderStrip(){const cur=st.intro?-1:LS.STEPS[st.step].ch;
+  $('#strip').innerHTML=LS.CH.map((c,ci)=>{const done=!c.quiz&&c.steps.every(s=>LS.done.has(LS.STEPS.indexOf(s)));
+    return `<button class="ch${ci===cur?' cur':''}${done?' done':''}" data-ch="${ci}" aria-current="${ci===cur?'step':'false'}"><span class="ic">${done?'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>':ICONS[c.icon]}</span><span><span class="n">${c.quiz?T(UI.finale):T(UI.chapter)+' '+(ci+1)}</span><br><span class="nm">${esc(T(c.name))}</span></span></button>`}).join('');
+  const el=$('#strip .cur');if(el&&!RM)el.scrollIntoView({block:'nearest',inline:'nearest',behavior:'smooth'})}
+function renderMenu(){$('#menu').innerHTML=LESSONS.map(L=>`<button data-lesson="${L.num}" aria-current="${L===LS?'true':'false'}"><span class="ic">${ICONS[L.icon]}</span><span><span class="n">${T(UI.lesson)} ${L.num}</span><br><span class="nm">${esc(T(L.title))}</span><br><span class="d">${esc(T(L.desc))}</span></span></button>`).join('')}
+function setTab(t){st.tab=t;document.querySelectorAll('.tab').forEach(bt=>bt.setAttribute('aria-selected',bt.dataset.tab===t?'true':'false'));renderPanel()}
+function renderPanel(){
+  const body=$('#pBody');
+  if(st.intro){$('#pEye').textContent=T(UI.map);$('#pTitle').innerHTML=esc(T(LS.mapTitle))+enLine(LS.mapTitle);$('#pCity').textContent=T(LS.mapSub);
+    body.innerHTML='<ol class="steps">'+LS.CH.map((c,ci)=>`<li><button class="st" data-go="${LS.STEPS.indexOf(c.steps[0])}"><span class="dot">${ci+1}</span><span><span class="t">${esc(T(c.name))}</span><p class="small" style="margin-top:2px">${esc(T(c.city))}${HI()?' · '+esc(EN(c.name)):''}</p></span></button></li>`).join('')+'</ol>';return}
+  const s=LS.STEPS[st.step],c=LS.CH[s.ch];
+  $('#pEye').textContent=c.quiz?T(UI.finale):fmt.chOf(s.ch+1,LS.CH.length-1);
+  $('#pTitle').innerHTML=esc(T(c.name))+enLine(c.name);
+  $('#pCity').innerHTML=`${ICONS[c.icon].replace(/width="22" height="22"/,'width="16" height="16"')} ${esc(T(UI.inCity))} ${esc(T(c.city))}`;
+  if(c.quiz){renderQuizPanel(body);return}
+  if(st.tab==='steps'){
+    body.innerHTML='<ol class="steps">'+c.steps.map(x=>{const gi=LS.STEPS.indexOf(x),cur=gi===st.step,done=LS.done.has(gi);
+      return `<li><button class="st${cur?' cur':''}${done&&!cur?' done':''}" data-go="${gi}" aria-current="${cur?'step':'false'}"><span class="dot">${done&&!cur?'✓':x.si+1}</span><span><span class="t">${esc(T(x.t))}</span>${cur?`<p>${esc(T(x.x))}</p><div class="auto" ${st.playing?'':'hidden'}><i id="autoBar"></i></div>`:''}</span></button></li>`}).join('')+'</ol>'+
+      (s.si===c.steps.length-1&&s.ch<LS.CH.length-2?`<p class="small" style="margin-top:14px">${esc(T(UI.nextCh))} <b>${esc(T(LS.CH[s.ch+1].name))}</b>. ${esc(T(UI.nextHow))}</p>`:'')+
+      (s.ch===LS.CH.length-2&&s.si===c.steps.length-1?`<p class="small" style="margin-top:14px">${esc(T(UI.builtAll))}</p>`:'');
+  }else if(st.tab==='why'){
+    let h='<div class="prose">';
+    if(s.table)h+=`<div class="tblwrap"><table class="sheet"><thead><tr><th>${esc(T(UI.part))}</th><th>${esc(T(UI.plant))}</th><th>${esc(T(UI.animal))}</th></tr></thead><tbody>`+s.table.map(r=>`<tr><td>${esc(T(r[0]))}${HI()?`<br><span class="small" lang="en">${esc(r[0].en)}</span>`:''}</td><td>${esc(T(r[1]))}</td><td>${esc(T(r[2]))}</td></tr>`).join('')+'</tbody></table></div>';
+    h+=T(s.why).map(p=>`<p>${esc(p)}</p>`).join('')+(s.exam?`<div class="callout"><b>${esc(T(UI.exam))}</b><p>${esc(T(s.exam))}</p></div>`:'')+'</div>';body.innerHTML=h;
+  }else{body.innerHTML=`<p class="wow">${esc(T(s.wow))}</p><p class="small">${fmt.stepOf(s.si+1,c.steps.length)} · ${esc(T(s.t))}</p>`}
+}
+
+/* ---------------- quiz ---------------- */
+function startQuiz(){st.quiz={i:0,score:0,tries:0,res:[],over:false};$('#quizbar').hidden=false;$('#result').hidden=true;showQ()}
+function stopQuiz(){st.quiz=null;$('#quizbar').hidden=true;$('#result').hidden=true;st.temp=null}
+function showQ(){const q=st.quiz;q.tries=0;q.fb={cls:'',txt:UI.qSpin};renderQuizBar();renderPanel()}
+function renderQuizBar(){const q=st.quiz;if(!q||q.over)return;$('#qn').textContent=fmt.qOf(q.i+1,LS.QUIZ.length);
+  $('#qq').innerHTML=esc(T(LS.QUIZ[q.i].q))+(HI()?`<div class="small" lang="en" style="font-family:var(--f-body);font-weight:400;margin-top:2px">${esc(LS.QUIZ[q.i].q.en)}</div>`:'');
+  const fb=$('#fb');fb.className='fb '+q.fb.cls;fb.textContent=typeof q.fb.txt==='function'?q.fb.txt():T(q.fb.txt)}
+function nm(k){const n=LS.NAMES[k];return HI()?`${T(n)} (${EN(n)})`:T(n)}
+function quizPick(k,hit){const q=st.quiz;if(!q||q.over||q.lock)return;const a=LS.ALIAS[k]||k,want=LS.QUIZ[q.i].a;
+  if(a===want){q.res[q.i]=q.tries===0?'first':'later';if(q.tries===0)q.score++;q.fb={cls:'good',txt:q.tries===0?UI.qFirst:UI.qRight};
+    st.temp={n:LS.NAMES[want],s:{en:UI.qCorrect.en+' · '+LS.JOBS[want].en,hi:UI.qCorrect.hi+' · '+LS.JOBS[want].hi},en:LS.NAMES[want],at:hit.clone(),ok:true};q.lock=true;renderQuizBar();renderPanel();
+    setTimeout(()=>{if(st.quiz!==q)return;q.lock=false;st.temp=null;q.i++;if(q.i>=LS.QUIZ.length){q.over=true;finishQuiz()}else showQ()},1500)}
+  else{q.tries++;const kk=k;q.fb={cls:'bad',txt:()=>fmt.wrong(nm(kk),T(LS.JOBS[kk]||''))+(q.tries>=2?' '+T(UI.qHint):'')};renderQuizBar();
+    const bar=$('#quizbar');bar.classList.remove('shake');void bar.offsetWidth;bar.classList.add('shake')}}
+function finishQuiz(){$('#quizbar').hidden=true;LS.done.add(LS.QUIZ_STEP);renderResult();$('#result').hidden=false;renderPanel();renderStrip()}
+function renderResult(){const q=st.quiz;if(!q||!q.over)return;const sc=q.score,n=LS.QUIZ.length;const stars=sc===n?3:sc>=4?2:1;
+  $('#stars').innerHTML=[0,1,2].map(i=>`<svg class="${i<stars?'on':''}" width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.8 6 6.5.7-4.9 4.4 1.4 6.4L12 16.8 6.2 20l1.4-6.4L2.7 9.2l6.5-.7z"/></svg>`).join('');
+  $('#rTitle').textContent=T(sc===n?UI.r3:sc>=4?UI.r2:UI.r1);
+  $('#rText').textContent=fmt.rScore(sc,n)+(sc===n?T(LS.teaser):T(UI.rReview));
+  const nxt=LESSONS[LESSONS.indexOf(LS)+1];const bn=$('#bNextL');bn.hidden=!nxt;if(nxt)bn.textContent=fmt.nextL(nxt.num)}
+function renderQuizPanel(body){const q=st.quiz;
+  if(st.tab==='steps'){body.innerHTML=`<p class="small" style="margin:0 0 12px">${esc(T(UI.qIntro))}</p><ol class="steps qs">`+LS.QUIZ.map((x,i)=>{const r=q&&q.res[i];const cur=q&&!q.over&&q.i===i;
+    return `<li><div class="st${cur?' cur':''}${r==='first'?' done':''}${r==='later'?' miss':''}"><span class="dot">${r==='first'?'✓':r==='later'?'~':i+1}</span><span><span class="t">${esc(T(x.q))}</span>${r?`<p class="small" style="margin-top:3px">${esc(nm(x.a))}</p>`:''}</span></div></li>`}).join('')+`</ol><p class="small" style="margin-top:12px">${esc(T(UI.score))}: <b>${q?q.score:0}</b> / ${LS.QUIZ.length} · ${esc(T(UI.firstTry))}</p>`}
+  else if(st.tab==='why'){body.innerHTML=`<p class="small" style="margin:0 0 10px">${esc(T(UI.cheat))}</p><div class="tblwrap"><table class="sheet"><tbody>`+
+    LS.cheat.map(k=>`<tr><td>${esc(T(LS.NAMES[k]))}${HI()?`<br><span class="small" lang="en">${esc(EN(LS.NAMES[k]))}</span>`:''}</td><td>${esc(T(LS.JOBS[k]))}</td></tr>`).join('')+'</tbody></table></div>'}
+  else body.innerHTML=`<p class="wow">${esc(T(LS.quizWow))}</p>`}
+
+/* ---------------- playback & controls ---------------- */
+function setPlaying(p){st.playing=p;$('#iPlay').innerHTML=p?'<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>':'<path d="M7 4v16l13-8z"/>';const pl=p?UI.pause:UI.play;$('#bPlay').title=T(pl);$('#bPlay').setAttribute('aria-label',T(pl));st.stepT0=now;if(!st.intro)renderPanel()}
+$('#bPlay').onclick=()=>{if(st.intro||st.step===LS.QUIZ_STEP){goStep(0);setPlaying(true);return}setPlaying(!st.playing)};
+const SPEEDS=[1,1.5,2,.75];$('#bSpeed').onclick=()=>{st.speed=SPEEDS[(SPEEDS.indexOf(st.speed)+1)%SPEEDS.length];$('#bSpeed').textContent=st.speed+'×'};
+$('#bView').onclick=()=>{flyTo(st.intro?LS.overview:LS.STEPS[st.step].cam)};
+$('#bRestart').onclick=()=>{LS.done.clear();setPlaying(false);showIntro()};
+$('#bStart').onclick=()=>goStep(0);
+$('#bSkip').onclick=()=>goStep(LS.QUIZ_STEP);
+$('#bOther').onclick=()=>setLesson(LESSONS.find(l=>l!==LS));
+$('#bNext').onclick=()=>{if(st.intro)goStep(0);else goStep(st.step+1)};
+$('#bPrev').onclick=()=>{if(!st.intro)goStep(st.step-1)};
+$('#bRetry').onclick=()=>startQuiz();
+$('#bReview').onclick=()=>goStep(0);
+$('#bNextL').onclick=()=>{const nxt=LESSONS[LESSONS.indexOf(LS)+1];if(nxt)setLesson(nxt)};
+document.querySelectorAll('.tab').forEach(bt=>bt.onclick=()=>setTab(bt.dataset.tab));
+$('#strip').addEventListener('click',e=>{const bt=e.target.closest('[data-ch]');if(bt){const c=LS.CH[+bt.dataset.ch];goStep(LS.STEPS.indexOf(c.steps[0]))}});
+$('#pBody').addEventListener('click',e=>{const bt=e.target.closest('[data-go]');if(bt){const g=+bt.dataset.go;if(g!==st.step||st.intro)goStep(g)}});
+function closeMenu(){$('#menu').hidden=true;$('#bLesson').setAttribute('aria-expanded','false')}
+$('#bLesson').onclick=e=>{e.stopPropagation();const m=$('#menu');m.hidden=!m.hidden;$('#bLesson').setAttribute('aria-expanded',String(!m.hidden))};
+$('#menu').addEventListener('click',e=>{const bt=e.target.closest('[data-lesson]');if(bt){closeMenu();setLesson(LESSONS[+bt.dataset.lesson-1])}});
+document.addEventListener('click',e=>{if(!e.target.closest('#menu')&&!e.target.closest('#bLesson'))closeMenu()});
+function setLang(l){st.lang=l;try{localStorage.setItem('cellcity-lang',l)}catch(e){}render();if(st.quiz){if(st.quiz.over)renderResult();else renderQuizBar()}}
+document.querySelectorAll('.lang button').forEach(bt=>bt.onclick=()=>setLang(bt.dataset.lang));
+$('#waterR').addEventListener('input',e=>{if(LS.water)LS.water.target=+e.target.value/100});
+window.addEventListener('keydown',e=>{if(e.target.closest&&e.target.closest('input,textarea'))return;
+  if(e.key==='ArrowRight'){e.preventDefault();$('#bNext').click()}else if(e.key==='ArrowLeft'){e.preventDefault();$('#bPrev').click()}
+  else if(e.key===' '&&(e.target===document.body||e.target===canvas)){e.preventDefault();$('#bPlay').click()}
+  else if(e.key==='l'||e.key==='L'){setLang(HI()?'en':'hi')}
+  else if(e.key==='Escape')closeMenu()});
+window.addEventListener('hashchange',()=>{const L=LESSONS.find(l=>'#'+l.id===location.hash);if(L&&L!==LS)setLesson(L)});
+
+/* ---------------- picking & hover ---------------- */
+const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();let hoverXY=null,downXY=null,dragging=false;
+function pick(cx,cy){const r=canvas.getBoundingClientRect();mouse.set((cx-r.left)/r.width*2-1,-((cy-r.top)/r.height)*2+1);ray.setFromCamera(mouse,camera);
+  const hits=ray.intersectObjects(LS.pickables,false).filter(h=>{const e=LS.ENT[h.object.userData.ent];return e&&e.target===1&&e.root.visible});
+  let soft=null;
+  for(const h of hits){const k=h.object.userData.key;
+    if(LS.SOFT[k]){if(!soft||LS.SOFT[k]>LS.SOFT[soft.k])soft={k,p:h.point};continue}
+    if(LS.BACKDROP[k]&&soft)return soft;
+    return {k,p:h.point}}
+  return soft}
+canvas.addEventListener('pointerdown',e=>{downXY=[e.clientX,e.clientY];dragging=false});
+canvas.addEventListener('pointermove',e=>{hoverXY=[e.clientX,e.clientY];if(downXY&&Math.hypot(e.clientX-downXY[0],e.clientY-downXY[1])>5)dragging=true});
+canvas.addEventListener('pointerleave',()=>{hoverXY=null;$('#chip').hidden=true});
+canvas.addEventListener('pointerup',e=>{if(downXY&&!dragging){const h=pick(e.clientX,e.clientY);if(h)onPick(h)}downXY=null;dragging=false});
+function onPick(h){
+  if(st.quiz&&!st.quiz.over){quizPick(h.k,h.p);return}
+  if(st.intro||st.quiz)return;
+  const k=h.k==='membraneInner'?'membrane':h.k;
+  const gi=LS.STEPS.findIndex(s=>[].concat(s.focus||[]).indexOf(k)>=0||(s.show||[]).indexOf(k)>=0);
+  if(gi>=0&&gi!==st.step)goStep(gi)}
+function updateHover(){const chip=$('#chip');
+  if(!hoverXY||dragging||(st.quiz&&!st.quiz.over)){chip.hidden=true;canvas.style.cursor=dragging?'grabbing':'grab';return}
+  const h=pick(hoverXY[0],hoverXY[1]);if(!h){chip.hidden=true;canvas.style.cursor='grab';return}
+  const r=viewport.getBoundingClientRect();chip.hidden=false;chip.innerHTML=`${esc(nm(h.k))} <span>· ${esc(T(LS.JOBS[h.k]||''))}</span>`;
+  chip.style.transform=`translate(${Math.max(8,Math.min(hoverXY[0]-r.left+14,r.width-chip.offsetWidth-8))}px,${hoverXY[1]-r.top+16}px)`;canvas.style.cursor='pointer'}
+
+/* ---------------- label overlay ---------------- */
+const tag=$('#tag'),lLine=$('#lLine'),lRing=$('#lRing'),lCore=$('#lCore');let W=1,H=1,lastTagHTML='';
+function proj(v){const p=v.clone().project(camera);return {x:(p.x+1)/2*W,y:(1-p.y)/2*H,ok:p.z<1&&p.z>-1}}
+function hideTag(){tag.hidden=true;lLine.style.display=lRing.style.display=lCore.style.display='none'}
+function updateLabel(){let L=null;
+  if(st.temp)L=st.temp;
+  else if(!st.intro&&!st.quiz){const s=LS.STEPS[st.step];const lb=s.label;if(lb){
+    if(lb.dyn)L=LS.dyn(lb.dyn);
+    else L={n:lb.n||LS.NAMES[lb.k],s:lb.s||LS.JOBS[lb.k],en:lb.en||lb.n||LS.NAMES[lb.k],at:lb.at()}}}
+  if(!L||!(now-st.stepT0>.9||st.temp)||fly){hideTag();return}
+  const a=proj(L.at);if(!a.ok||a.x<0||a.x>W||a.y<0||a.y>H){hideTag();return}
+  const enName=HI()&&L.en?EN(L.en):'';
+  const html=`<small>${esc(T(L.s))}</small>${esc(T(L.n))}${enName&&enName!==T(L.n)?`<em lang="en">${esc(enName)}</em>`:''}`;
+  if(html!==lastTagHTML){tag.innerHTML=html;lastTagHTML=html}
+  tag.classList.toggle('ok',!!L.ok);tag.hidden=false;
+  const tw=tag.offsetWidth,th=tag.offsetHeight,left=a.x>W*.58;
+  let lx=left?a.x-tw-54:a.x+54,ly=a.y-th-46;lx=clamp(lx,10,W-tw-10);ly=clamp(ly,10,H-th-10);
+  tag.style.transform=`translate(${lx}px,${ly}px)`;
+  const ex=clamp(a.x,lx,lx+tw),ey=clamp(a.y,ly,ly+th);
+  lLine.setAttribute('x1',a.x);lLine.setAttribute('y1',a.y);lLine.setAttribute('x2',ex);lLine.setAttribute('y2',ey);
+  lRing.setAttribute('cx',a.x);lRing.setAttribute('cy',a.y);lCore.setAttribute('cx',a.x);lCore.setAttribute('cy',a.y);
+  lLine.style.display=lRing.style.display=lCore.style.display=''}
+function updateScale(){const d=camera.position.distanceTo(controls.target);const ppu=H/(2*d*Math.tan(camera.fov*D2R/2))/LS.unit;
+  const opts=[.5,1,2,5,10,20,50];let L=opts[opts.length-1];for(const o of opts){if(o*ppu>=56){L=o;break}}
+  $('#scaleBar').style.width=Math.round(L*ppu)+'px';$('#scaleTxt').textContent=L+' µm'}
+
+/* ---------------- per-frame ---------------- */
+function updateEntries(){
+  for(const k in LS.ENT){const e=LS.ENT[k],el=now-e.t0;let any=false;
+    e.parts.forEach((p,i)=>{let s;if(e.target){const l=clamp((el-i*e.stag)/e.dur,0,1);s=RM?l:easeOutBack(l)}else s=1-easeInCubic(clamp(el/.5,0,1));
+      s=Math.max(s,1e-4);p.scale.copy(p.userData.base).multiplyScalar(s*p.userData.fx);if(s>.002)any=true});
+    e.root.visible=any||(e.target===1&&el>-.4)}
+  const s=st.intro?null:LS.STEPS[st.step];
+  let fk=s&&!s.quiz?[].concat(s.focus||[]):[];
+  if(st.quiz&&!st.quiz.over&&st.quiz.tries>=2)fk=[LS.QUIZ[st.quiz.i].a];
+  for(const k in LS.ENT){const e=LS.ENT[k];const on=fk.indexOf(k)>=0&&now-st.stepT0>.5;const I=on?.2+.17*Math.sin(now*3.4):0;
+    if(Math.abs(I-e.lastI)>.004){e.mats.forEach(m=>{m.emissive.copy(m.userData.glow);m.emissiveIntensity=I});e.lastI=I}}}
+function updateAuto(){if(!st.playing||st.intro||st.quiz)return;const s=LS.STEPS[st.step];const d=(s.dur||12)/st.speed;const p=(now-st.stepT0)/d;
+  const bb=document.getElementById('autoBar');if(bb)bb.style.width=Math.min(100,p*100)+'%';
+  if(p>=1){if(st.step+1>=LS.QUIZ_STEP){setPlaying(false);goStep(LS.QUIZ_STEP)}else goStep(st.step+1)}}
+function resize(){const r=viewport.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);renderer.setSize(W,H,false);camera.aspect=W/H;camera.updateProjectionMatrix()}
+new ResizeObserver(resize).observe(viewport);resize();
+
+const clock=new THREE.Clock();
+function frame(){const dt=Math.min(.1,clock.getDelta());now+=dt;
+  updateFly();updateEntries();
+  const s=st.intro?null:LS.STEPS[st.step];LS.fx(s,dt,now-st.stepT0);updateAuto();
+  controls.update();renderer.render(scene,camera);updateLabel();updateScale();updateHover();
+  requestAnimationFrame(frame)}
+
+/* boot */
+const start=LESSONS.find(l=>'#'+l.id===location.hash)||L1;
+LS=start;LS.root.visible=true;setTab('steps');showIntro(true);
+frame();
+})();
+</script>
+</body>
+</html>
